@@ -44,24 +44,6 @@ const FIGURES = [
   { n: '11.4%', l: 'Engagement rate' }, //                PLACEHOLDER
 ];
 
-const PILLARS = [
-  {
-    t: 'Connect',
-    claim: 'The introductions that turn a night into a scene.',
-    p: 'We put the right people in the same room — crowds, venues, artists, brands. The city is small once you know who to ask.',
-  },
-  {
-    t: 'Curate',
-    claim: 'Not everything deserves a post.',
-    p: 'We filter the city down to what is genuinely worth showing up for, then say where to be and when to get there.',
-  },
-  {
-    t: 'Create',
-    claim: 'Vertical-first, shot on the floor, cut for the feed.',
-    p: 'Street interviews, breakdowns and the moments that only happen once. Cut for the format people actually watch in.',
-  },
-];
-
 /* PLACEHOLDER, all four — stat, quote and attribution alike. The word
    "Placeholder" is left visible in the role line on purpose, so nobody
    can mistake these for client testimonials on a staging link. */
@@ -156,48 +138,9 @@ export default function Page() {
               other way round — in the crowd, in portrait, in the moment.
             </p>
           </Reveal>
-        </section>
 
-        {/* ── 3. pillars + figure row ───────────────────────────────────── */}
-        <section id="approach" aria-labelledby="h-approach" className="container band">
-          <Reveal className="lock">
-            <span className="pill">What we do</span>
-            <span className="lock__row">
-              <span className="lock__rule" />
-              <h2 id="h-approach" className="lock__h">
-                Three jobs, one
-                <br />
-                culture desk
-              </h2>
-            </span>
-          </Reveal>
-
-          <div className="cards">
-            {PILLARS.map((p, i) => (
-              <Reveal key={p.t} className="card" delay={i * 110}>
-                <div className="card__body">
-                  <h3 className="card__t">{p.t}</h3>
-                  <p className="card__claim">{p.claim}</p>
-                  <p className="card__p">{p.p}</p>
-                  {/* three identical link texts would give screen readers three
-                      identical "See it" targets — each gets its own label */}
-                  <a
-                    className="ghost"
-                    href={IG}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`See ${p.t.toLowerCase()} on Instagram`}
-                  >
-                    See it
-                  </a>
-                </div>
-                <div className="card__media">
-                  <img src={P[i + 1]} alt="" loading="lazy" />
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
+          {/* Re-homed from the removed "What we do" block, which carried this
+              row underneath its cards. Only the first figure is real. */}
           <div className="figs">
             {FIGURES.map((f, i) => (
               <Reveal key={f.l} className="fig" delay={i * 100}>
@@ -370,7 +313,6 @@ export default function Page() {
           <div>
             <h2 className="pill">Explore</h2>
             <ul>
-              <li><a href="#approach">What we do</a></li>
               <li><a href="#archive">The archive</a></li>
               <li><a href="#faqs">FAQs</a></li>
               <li><a href="#top">Back to top</a></li>
