@@ -207,14 +207,18 @@ export default function Page() {
             </span>
           </Reveal>
           <Reveal className="clients">
-            <img
-              src="/brand/clients.webp"
-              alt="Logos of brands the group has worked with, including Porsche, Meta, Paytm Insider, Tuborg and The MET"
-              loading="lazy"
-              decoding="async"
-              width="1500"
-              height="689"
-            />
+            {/* Inner scroller: .clients itself clips, so the edge mask and
+                the sheen have something to be contained by. */}
+            <div className="clients__scroll">
+              <img
+                src="/brand/clients.webp"
+                alt="Logos of brands the group has worked with, including Porsche, Meta, Paytm Insider, Tuborg and The MET"
+                loading="lazy"
+                decoding="async"
+                width="1500"
+                height="690"
+              />
+            </div>
           </Reveal>
         </section>
 
