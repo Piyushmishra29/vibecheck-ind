@@ -63,14 +63,25 @@ const SERIES = [
   { k: 'Series 03', t: 'Breakdown' },
 ];
 
-/* Answers 1, 6 and 7 are REAL. The rest are PLACEHOLDER and say so in
-   the copy itself, so a staging link cannot pass them off as policy. */
+/* Answers 1, 6 and 7 are REAL — drawn from the account itself.
+
+   Answers 2-5 are GENERIC DRAFTS. They no longer announce themselves as
+   placeholders, which makes them more dangerous than the old stub copy,
+   not less: they read as settled policy. They are deliberately written
+   without specifics nobody has confirmed — no city list, no price, no
+   lead time in days, no named packages — so nothing here can be wrong on
+   a matter of fact. But they still describe how the business behaves.
+   CONFIRM ALL FOUR BEFORE LAUNCH.
+
+   This is also why there is still no FAQPage JSON-LD: publishing these as
+   structured data would hand unverified statements to search engines as
+   fact. Add that node once the answers are the client's own words. */
 const FAQ = [
   { q: 'What kind of content do you make?', a: 'Vertical-first short form — street interviews, venue breakdowns, crowd reactions and event coverage. Everything is shot on location and cut for the feed.' },
-  { q: 'Which cities do you cover?', a: 'Placeholder answer. Add the cities you actively cover and how far you travel for a booking.' },
-  { q: 'Can brands work with you?', a: 'Yes. Placeholder answer — outline the collaboration formats you offer and roughly what a package includes.' },
-  { q: 'How far ahead should we book?', a: 'Placeholder answer. State your usual lead time for an event shoot.' },
-  { q: 'Do you cover private events?', a: 'Placeholder answer covering private bookings, guest privacy and what you will and will not publish.' },
+  { q: 'Which cities do you cover?', a: 'We are based in India and go where the night is worth documenting. Travelling for a booking is possible — send the date and the location and we will tell you straight away whether we can be there.' },
+  { q: 'Can brands work with you?', a: 'Yes. Brand work usually takes one of three shapes: we turn up to something you are already running, we build a format around what you are launching, or you take over one of our recurring series. Tell us who you are trying to reach and we will come back with a scope.' },
+  { q: 'How far ahead should we book?', a: 'More notice means a better plan, but short form moves quickly and so do we. If the date is close, ask anyway — you will get a yes or a no the same day rather than be left waiting.' },
+  { q: 'Do you cover private events?', a: 'Yes, on the understanding that private means private. We agree beforehand what can be published and what cannot, anyone who would rather not be filmed simply is not, and nothing goes out without that being checked first.' },
   { q: 'How do you decide what to feature?', a: 'We curate rather than cover everything. If it is worth showing up for, it makes the feed.' },
   { q: 'How do I get in touch?', a: `Message ${IG_HANDLE} on Instagram. It is the shortest route to us and it reaches the people who actually hold the camera.` },
 ];
@@ -272,7 +283,16 @@ export default function Page() {
         {/* ── 8. closing card ───────────────────────────────────────────── */}
         <section id="contact" aria-labelledby="h-contact" className="container band">
           <Reveal className="close">
-            <img className="close__bg" src={P[7]} alt="" loading="lazy" />
+            {/* Top Marketing Solutions' work montage, supplied by the client.
+                It runs under a heavy vignette so it reads as texture, and it
+                carries the parent brand's star behind the closing line. */}
+            <img
+              className="close__bg"
+              src="/brand/top-collage.webp"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
             <h2 id="h-contact" className="close__h">
               Tell us where
               <br />
@@ -303,6 +323,9 @@ export default function Page() {
               We Connect, Curate
               <br />
               and Create
+            </p>
+            <p className="parentco">
+              A <strong>Top Marketing Solutions</strong> company
             </p>
             {/* build-time year — this is a static export, so it updates
                 whenever the site is rebuilt */}

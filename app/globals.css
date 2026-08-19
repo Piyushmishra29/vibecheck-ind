@@ -288,11 +288,21 @@ a{color:inherit;text-decoration:none}
 
 /* ── closing card — radial vignette, not blur(200px) ───────────────── */
 .close{position:relative;border-radius:48px;overflow:hidden;background:var(--accent-deep);
-  padding:clamp(3rem,8vw,90px) clamp(1.25rem,4vw,60px);text-align:center;isolation:isolate}
+  padding:clamp(2.75rem,6vw,72px) clamp(1.25rem,4vw,60px) clamp(2.25rem,4.5vw,52px);
+  text-align:center;isolation:isolate}
+/* Three layers, not one centred ellipse. The old single radial sat at 50% 50%
+   while the copy sits high in the card, so the headline landed on bright
+   frame while the bottom third was empty picture. Now: a radial anchored
+   where the text actually is, a top-and-tail linear to seat the card against
+   the page, and a brand wash so the still reads as ours rather than as grey
+   stock. */
 .close::before{content:"";position:absolute;inset:0;z-index:-1;
-  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(5,2,6,.92) 0%,rgba(5,2,6,.55) 55%,transparent 100%)}
+  background:
+    radial-gradient(ellipse 95% 78% at 50% 40%,rgba(5,2,6,.94) 0%,rgba(5,2,6,.74) 46%,rgba(5,2,6,.44) 74%,rgba(5,2,6,.32) 100%),
+    linear-gradient(180deg,rgba(5,2,6,.5) 0%,transparent 26%,transparent 60%,rgba(5,2,6,.72) 100%),
+    linear-gradient(0deg,rgba(122,37,124,.26),rgba(122,37,124,.26))}
 .close__bg{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;
-  filter:grayscale(1) brightness(.55)}
+  filter:grayscale(1) brightness(.42) contrast(1.06)}
 .close__h{font-family:var(--font-display),Georgia,serif;font-size:clamp(2rem,1rem + 4.5vw,48px);
   line-height:1.28;margin:0 0 1rem;letter-spacing:-.01em}
 .btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;
@@ -505,3 +515,10 @@ a{color:inherit;text-decoration:none}
 @media (max-width:991px){
   .voice__media{aspect-ratio:auto;height:230px;flex:none;align-self:stretch}
 }
+
+/* ── parent company line ───────────────────────────────────────────────
+   VibeCheck is a Top Marketing Solutions brand. Quiet by design: it is an
+   ownership fact, not a pitch, so it sits under the tagline rather than
+   competing with it. */
+.parentco{margin:0 0 .75rem;font-size:13px;line-height:1.5;color:var(--paper-dim)}
+.parentco strong{font-weight:600;color:var(--accent-pale)}
