@@ -17,7 +17,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
    · play() may return undefined on old engines, and matchMedia can throw
      on a malformed query in a few of them; neither may take the page down.
 */
-export default function useHoverPreview(src) {
+export default function useHoverPreview(src, opts = {}) {
+  /* requireHover:false is the phone feed — playback is driven by what is
+     on screen, not by a pointer, so the hover-capability gate would veto
+     every play. Reduced motion is still respected either way.
+     delay:0 there too: a snap-sized panel filling the screen IS the intent,
+     so there is nothing to debounce. */
+  const { requireHover = true, delay = 130 } = opts;
   const ref = useRef(null);
   const [playing, setPlaying] = useState(false);
   const gen = useRef(0);
@@ -32,12 +38,10 @@ export default function useHoverPreview(src) {
 
   const allowed = () => {
     try {
-      return (
-        typeof window !== 'undefined' &&
-        typeof window.matchMedia === 'function' &&
-        window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
-        !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      );
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+      if (!requireHover) return true;
+      return window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     } catch {
       return false;
     }
@@ -48,7 +52,7 @@ export default function useHoverPreview(src) {
      254KB for a single intended hover, and a sweep of the 12-tile wall would
      have pulled all 816KB. Nothing is requested until the pointer has settled
      for INTENT_MS, so passing over a cell costs nothing at all. */
-  const INTENT_MS = 130;
+  const INTENT_MS = delay;
   const timer = useRef(null);
 
   const clearTimer = () => {
@@ -78,7 +82,11 @@ export default function useHoverPreview(src) {
       if (p && typeof p.then === 'function') p.then(done, () => {});
       else done();
     }, INTENT_MS);
-  }, [src]);
+    /* requireHover and delay MUST be dependencies. Feed mode resolves after
+       mount, so a callback memoised on [src] alone freezes the first render's
+       options — requireHover:true — and on a phone that gate can never pass,
+       leaving the feed permanently silent. */
+  }, [src, requireHover, delay]);
 
   const stop = useCallback(() => {
     clearTimer();

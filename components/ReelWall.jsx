@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Reveal from './Reveal';
 import useHoverPreview from './useHoverPreview';
+import ReelMeta from './ReelMeta';
+import { IG_HANDLE } from '@/app/site';
 import './a11y.css';
 
 /* Full playback never touches our server — it happens inside Instagram's
@@ -29,19 +31,45 @@ function focusables(root) {
   );
 }
 
-function Tile({ post, index, total, onOpen, tileRef }) {
-  const { ref: vid, playing, start, stop } = useHoverPreview(post.preview);
+function Tile({ post, index, total, onOpen, tileRef, feed }) {
+  const { ref: vid, playing, start, stop } = useHoverPreview(
+    post.preview,
+    feed ? { requireHover: false, delay: 0 } : undefined
+  );
+  const host = useRef(null);
+
+  /* Phone feed: each film fills the screen, so the one you are looking at
+     is the one that plays. Threshold 0.6 means a panel has to genuinely
+     occupy the viewport before it costs a download — scrolling past at
+     speed never triggers a fetch, and only one clip is ever playing. */
+  useEffect(() => {
+    if (!feed || !post.preview) return;
+    const el = host.current;
+    if (!el || typeof IntersectionObserver !== 'function') return;
+    const io = new IntersectionObserver(
+      ([e]) => (e.isIntersecting ? start() : stop()),
+      { threshold: 0.6 }
+    );
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      stop();
+    };
+  }, [feed, post.preview, start, stop]);
 
   return (
     <button
-      ref={tileRef}
+      ref={(el) => {
+        host.current = el;
+        if (tileRef) tileRef(el);
+      }}
       className="tile"
       type="button"
       onClick={() => onOpen(index)}
-      onMouseEnter={start}
-      onMouseLeave={stop}
-      onFocus={start}
-      onBlur={stop}
+      onMouseEnter={feed ? undefined : start}
+      onMouseLeave={feed ? undefined : stop}
+      onFocus={feed ? undefined : start}
+      onBlur={feed ? undefined : stop}
       aria-haspopup="dialog"
       aria-label={`Open post ${index + 1} of ${total}${post.date ? `, ${post.date}` : ''}${
         post.isVideo ? ', reel' : ''
@@ -80,6 +108,8 @@ function Tile({ post, index, total, onOpen, tileRef }) {
         <span>{post.date || ''}</span>
         <span>{post.isVideo ? 'REEL' : 'POST'}</span>
       </span>
+
+      {feed && <ReelMeta post={post} handle={IG_HANDLE} />}
     </button>
   );
 }
@@ -91,6 +121,20 @@ export default function ReelWall({ posts }) {
   const tiles = useRef([]);
   const dialog = useRef(null);
   const lastIndex = useRef(0);
+
+  /* Phone feed mode. Resolved after mount, never during render, so the
+     server HTML and the first client pass agree — the grid is the SSR
+     default and the feed is opted into once we can actually measure. */
+  const [feed, setFeed] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
+    const mq = window.matchMedia('(max-width: 700px)');
+    const apply = () => setFeed(mq.matches);
+    apply();
+    mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
+    return () =>
+      mq.removeEventListener ? mq.removeEventListener('change', apply) : mq.removeListener(apply);
+  }, []);
   const uid = useId();
   const titleId = `${uid}-lb-title`;
 
@@ -207,14 +251,17 @@ export default function ReelWall({ posts }) {
 
   return (
     <>
-      <div className="wall">
+      <div className="wall" data-feed={feed ? '1' : '0'}>
         {posts.map((p, i) => (
-          <Reveal key={p.shortcode} delay={(i % 6) * 60}>
+          /* No reveal in feed mode — a panel that fills the screen must not
+             arrive at opacity 0, and its own entrance is the scroll. */
+          <Reveal key={p.shortcode} delay={feed ? 0 : (i % 6) * 60} disabled={feed}>
             <Tile
               post={p}
               index={i}
               total={posts.length}
               onOpen={setOpen}
+              feed={feed}
               tileRef={(el) => {
                 tiles.current[i] = el;
               }}

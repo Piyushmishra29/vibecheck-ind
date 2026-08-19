@@ -1,14 +1,13 @@
 /* ══════════════════════════════════════════════════════════════════════
    SITE CONSTANTS — the one place a real domain gets wired in.
 
-   ┌─────────────────────────────────────────────────────────────────┐
-   │  PLACEHOLDER DOMAIN. VibeCheck has no domain yet. Change the    │
-   │  single line below and metadataBase, the canonical URL, the     │
-   │  OG/Twitter image URLs, robots.txt, sitemap.xml and every       │
-   │  @id in the JSON-LD graph follow automatically. No other file   │
-   │  hardcodes a host.                                              │
-   └─────────────────────────────────────────────────────────────────┘   */
-export const SITE_URL = 'https://vibecheck.example'; // ← PLACEHOLDER: swap for the real domain
+   This single line drives metadataBase, the canonical URL, the OG/Twitter
+   image URLs, robots.txt, sitemap.xml and every @id in the JSON-LD graph.
+   No other file hardcodes a host.
+
+   Set to the live domain. Note the canonical host includes `www` — pick one
+   and redirect the other at the server, or the two will compete in search.  */
+export const SITE_URL = 'https://www.vibecheck.channel';
 
 /* Verified facts only. Everything here is checkable against the public
    Instagram profile — no invented figures live in this file. */

@@ -522,3 +522,96 @@ a{color:inherit;text-decoration:none}
    competing with it. */
 .parentco{margin:0 0 .75rem;font-size:13px;line-height:1.5;color:var(--paper-dim)}
 .parentco strong{font-weight:600;color:var(--accent-pale)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   PHONE FILM FEED
+   On a phone the archive stops being a grid and becomes what the work
+   actually is: full-screen 9:16 films, one per viewport, the one you are
+   looking at playing. A 2-up grid of 170px thumbnails is the wrong shape
+   for a vertical-video brand on the device vertical video was made for.
+
+   Snap is `proximity`, declared on the root but only ever acting on
+   elements that opt in via scroll-snap-align — the film panels and nothing
+   else. So the films snap and every other section scrolls exactly as
+   before. `mandatory` would fight the whole page.
+   ══════════════════════════════════════════════════════════════════════ */
+@media (max-width:700px){
+  html{scroll-snap-type:y proximity}
+
+  /* break the gutters: the container is padded, the feed is not */
+  .wall[data-feed="1"]{display:block;width:100vw;margin-inline:calc(50% - 50vw);gap:0}
+  .wall[data-feed="1"] > *{display:block}
+
+  .wall[data-feed="1"] .tile{
+    aspect-ratio:auto;height:100svh;width:100vw;
+    border:0;border-radius:0;scroll-snap-align:center}
+
+  /* the films are the content now, not thumbnails of it — full colour */
+  .wall[data-feed="1"] .tile img{filter:none;transform:none}
+  .wall[data-feed="1"] .tile__vid{opacity:0}
+  .wall[data-feed="1"] .tile__vid[data-on="1"]{opacity:1}
+
+  /* stronger top-and-tail so overlay type holds on any frame */
+  .wall[data-feed="1"] .tile::after{
+    background:linear-gradient(180deg,rgba(5,2,6,.72) 0%,transparent 26%,transparent 62%,rgba(5,2,6,.86) 100%)}
+
+  /* no hover on a phone, so the meta simply lives on screen */
+  .wall[data-feed="1"] .tile__date{
+    opacity:1;transform:none;
+    bottom:clamp(2rem,7vh,4.5rem);left:1.25rem;right:1.25rem;
+    font-size:12px;letter-spacing:.14em}
+  .wall[data-feed="1"] .tile__idx{
+    top:clamp(1.5rem,4vh,2.5rem);left:1.25rem;font-size:13px;letter-spacing:.2em}
+
+  /* the badge reads as "open this", not "press to start" */
+  .wall[data-feed="1"] .tile__play{
+    opacity:1;align-items:end;
+    padding-bottom:calc(clamp(2rem,7vh,4.5rem) + 2.6rem)}
+  .wall[data-feed="1"] .tile__play[data-hide="1"]{opacity:1}
+  .wall[data-feed="1"] .tile__play span{
+    width:auto;height:auto;border-radius:100px;padding:.6rem 1.1rem;gap:.5rem;
+    display:inline-flex;align-items:center;
+    background:rgba(9,4,10,.5);border-color:var(--line-accent)}
+  .wall[data-feed="1"] .tile__play span::after{
+    content:"Watch on Instagram";
+    font-family:var(--font-mono),monospace;font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--paper)}
+
+  #archive .lock{margin-bottom:clamp(1.5rem,5vw,2.5rem)}
+
+  /* ── reel engagement rail ────────────────────────────────────────
+     Real counts, read from the public profile per shortcode. Styled in
+     the brand's own language rather than as a copy of Instagram's
+     interface — it should read as "this is a reel", not as a fake
+     Instagram. */
+  .reelrail{
+    position:absolute;z-index:3;right:1rem;bottom:clamp(5.5rem,15vh,8.5rem);
+    display:flex;flex-direction:column;gap:1.35rem;align-items:center;
+    color:var(--paper);text-shadow:0 1px 12px rgba(5,2,6,.65)}
+  .reelrail__i{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+  .reelrail__i b{
+    font-family:var(--font-mono),monospace;font-size:11px;font-weight:400;
+    letter-spacing:.06em}
+  .reelfoot{
+    position:absolute;z-index:3;left:1.25rem;right:5rem;
+    bottom:clamp(1rem,3.5vh,2rem);
+    display:flex;flex-direction:column;gap:.2rem;
+    color:var(--paper);text-shadow:0 1px 12px rgba(5,2,6,.65)}
+  .reelfoot b{font-size:13px;font-weight:600;letter-spacing:.01em}
+  .reelfoot em{
+    font-style:normal;font-family:var(--font-mono),monospace;
+    font-size:11px;letter-spacing:.1em;color:var(--accent-pale)}
+
+  /* The grid's index and date row both sat under the sticky masthead once
+     the panel went full-bleed, and the reel chrome already carries the
+     context (handle, views, "watch on Instagram"). Drop them here rather
+     than fight the nav for space. */
+  .wall[data-feed="1"] .tile__date,
+  .wall[data-feed="1"] .tile__idx{display:none}
+  .wall[data-feed="1"] .tile__play{
+    padding-bottom:calc(clamp(1rem,3.5vh,2rem) + 3.6rem);justify-content:start;padding-left:1.25rem}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-snap-type:none}
+}
