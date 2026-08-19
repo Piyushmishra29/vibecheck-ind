@@ -335,3 +335,12 @@ a{color:inherit;text-decoration:none}
 .tile__idx,.tile__date{z-index:3}
 .tile::after{z-index:2}
 @media (hover:none){.tile__vid{display:none}}
+
+/* ── mosaic hover playback ─────────────────────────────────────────── */
+.mosaic__vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;
+  opacity:0;transition:opacity .45s var(--ease);pointer-events:none;background:var(--ink-2)}
+.mosaic__vid[data-on="1"]{opacity:1}
+.mosaic__cell img{transition:filter .5s var(--ease)}
+.mosaic__cell[data-playing="1"] img{filter:grayscale(0) contrast(1)}
+.mosaic__cell .chip{z-index:3}
+@media (hover:none){.mosaic__vid{display:none}}

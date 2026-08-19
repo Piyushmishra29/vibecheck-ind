@@ -86,7 +86,7 @@ export default function Page() {
         </Reveal>
       </header>
 
-      <Mosaic posters={P} figures={CHIPS} />
+      <Mosaic posts={posts} figures={CHIPS} />
 
       {/* ── 2. chapter opener — the thesis ────────────────────────────── */}
       <section className="container opener">

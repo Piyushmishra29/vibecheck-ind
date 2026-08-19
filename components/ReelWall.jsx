@@ -1,6 +1,7 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Reveal from './Reveal';
+import useHoverPreview from './useHoverPreview';
 
 /* Full playback never touches our server — it happens inside Instagram's
    official embed iframe, mounted only when a tile is opened.
@@ -14,37 +15,7 @@ function embedUrl(p) {
 }
 
 function Tile({ post, index, total, onOpen }) {
-  const vid = useRef(null);
-  const [armed, setArmed] = useState(false); // src attached yet?
-  const [playing, setPlaying] = useState(false);
-
-  const canHover = () =>
-    typeof window !== 'undefined' &&
-    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
-    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const start = useCallback(() => {
-    if (!post.preview || !canHover()) return;
-    setArmed(true);
-    const v = vid.current;
-    if (!v) return;
-    // First hover attaches the source. preload="none" means setting src alone
-    // starts no fetch — load() is required, and play() then resolves once the
-    // first frames arrive.
-    if (!v.getAttribute('src')) {
-      v.setAttribute('src', post.preview);
-      v.load();
-    }
-    v.play().then(() => setPlaying(true)).catch(() => {});
-  }, [post.preview]);
-
-  const stop = useCallback(() => {
-    const v = vid.current;
-    setPlaying(false);
-    if (!v) return;
-    v.pause();
-    try { v.currentTime = 0; } catch {}
-  }, []);
+  const { ref: vid, playing, start, stop } = useHoverPreview(post.preview);
 
   return (
     <button
