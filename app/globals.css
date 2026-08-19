@@ -344,3 +344,149 @@ a{color:inherit;text-decoration:none}
 .mosaic__cell[data-playing="1"] img{filter:grayscale(0) contrast(1)}
 .mosaic__cell .chip{z-index:3}
 @media (hover:none){.mosaic__vid{display:none}}
+
+/* ══════════════════════════════════════════════════════════════════════
+   RESPONSIVE PASS
+   The page was built and reviewed at desktop only; everything below is
+   the correction layer for narrow and short viewports. It is appended
+   last on purpose, so equal-specificity rules above are overridden
+   without editing them. NOTHING here fires at >=1121px except the
+   pointer:coarse tap-target block, so the 1280/1440 design is untouched.
+
+   Breakpoints, and why each one exists:
+     1120px  the figure row's number+label lockup stops fitting on one line
+      900px  cards/split already collapse here (pre-existing)
+      860px  lightbox nav moves below the frame (pre-existing)
+      640px  "phone": the wall and the mosaic need real reworking
+      560px  SHORT viewport (landscape phone) — svh-sized things break
+      520px  the CTA button's label stops fitting on one line
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── figure row ────────────────────────────────────────────────────────
+   .fig__n and .fig__l are inline siblings inside one wrapper span, so on
+   a wide screen they read as one line: "27.1K COMMUNITY ON INSTAGRAM".
+   Below ~1120px the column is too narrow for that and the label wraps
+   mid-phrase, orphaning "ON INSTAGRAM" under the number with no gap
+   (margin-top is inert on an inline box). Making both blocks turns it
+   into a deliberate two-line stack and activates the existing 10px
+   margin. Above 1120px nothing changes. */
+@media (max-width:1120px){
+  .fig__n{display:block}
+  .fig__l{display:block;margin-top:8px}
+}
+
+/* ── heading lockup: the 60px gap after it is a desktop measurement ──── */
+.lock + *{margin-top:clamp(28px,6vw,60px)}
+
+/* ── phone (<=640px) ──────────────────────────────────────────────── */
+@media (max-width:640px){
+  /* THE WALL — auto-fill/minmax(210px) collapses to ONE column at 390px,
+     which turned 12 tiles into a 7,500px scroll (the page measured
+     16,200px tall). Two columns is the correct portrait-tile density and
+     roughly halves the page. */
+  .wall{grid-template-columns:repeat(2,1fr)}
+  /* the hover meta row is sized for a 300px tile; shrink it for a 170px one */
+  .tile__date{font-size:10px;letter-spacing:.06em;gap:.4rem}
+  .tile__idx{top:.5rem;left:.55rem}
+  .tile__play span{width:44px;height:44px}
+
+  /* THE MOSAIC — 290px columns inside a 607px-tall band showed exactly
+     one and a bit stills on a 390px screen. Narrower columns and a
+     shorter band keep the same column-to-height proportion as desktop
+     (~0.45) while showing two stills instead of one. */
+  .mosaic{height:min(430px,52svh)}
+  .mosaic__col{width:clamp(140px,45vw,200px)}
+  .mosaic__track,.mosaic__col{gap:8px}
+  .mosaic__cell{border-radius:16px}
+  .chip{padding:6px 12px;margin:6px}
+  .chip__n{font-size:26px}
+  .chip__l{font-size:10px;margin-top:4px}
+}
+
+/* ── series badges: 2-up grid instead of a ragged 2+1 wrap ──────────── */
+@media (max-width:600px){
+  .badges{gap:12px}
+  .badge{flex:0 1 calc(50% - 6px);min-width:0;padding:12px 14px}
+}
+
+/* ── the CTA button ───────────────────────────────────────────────────
+   "Message us on Instagram" + the arrow overflowed the closing card at
+   390px, wrapping the label onto two lines with the arrow stranded on
+   the right. Tighter tracking and padding keep it a single pill. */
+@media (max-width:520px){
+  .btn{padding:15px 22px;font-size:12.5px;letter-spacing:.09em;gap:8px;
+    max-width:100%;justify-content:center;text-align:center}
+  .trust{gap:14px 18px}
+}
+
+/* ── lightbox ─────────────────────────────────────────────────────────
+   The frame is centred, with the close button 2.9rem ABOVE it and (under
+   860px) the nav row 58px BELOW it. 84svh left no room for either, so on
+   a short screen the close button sat off the top of the viewport and
+   the nav sat off the bottom. Reserve the chrome in the height. */
+@media (max-width:860px){
+  .lb__frame{height:min(760px,84svh,100svh - 8.5rem)}
+}
+
+/* ── short viewport (landscape phone) ─────────────────────────────────
+   At 844x390 the stack measured 432px of chrome+frame in a 390px window:
+   close at y=-12 and nav at y=418, both clipped. Below 560px tall the
+   controls leave the frame's coordinate space entirely and pin to the
+   viewport, where they cannot be pushed off it. */
+@media (max-height:560px){
+  .lb{padding:.6rem}
+  .lb__frame{height:min(760px,100svh - 1.2rem)}
+  .lb__close{position:fixed;top:.6rem;right:.6rem;
+    background:rgba(9,4,10,.85);backdrop-filter:blur(6px)}
+  .lb__prev,.lb__next{position:fixed;top:50%;bottom:auto;translate:0 -50%;
+    background:rgba(9,4,10,.85);backdrop-filter:blur(6px)}
+  .lb__prev{left:.6rem}
+  .lb__next{right:.6rem}
+
+  /* 72svh of a 390px-tall window is a 281px band; 290px columns made the
+     9:16 stills read as landscape crops. Track the band's own height. */
+  .mosaic__col{width:clamp(110px,34svh,290px)}
+  .chip{padding:6px 12px;margin:6px}
+  .chip__n{font-size:24px}
+  .chip__l{font-size:10px;margin-top:4px}
+}
+
+/* ── tap targets ──────────────────────────────────────────────────────
+   Everything interactive clears 44px on touch. Scoped so a desktop
+   pointer keeps the tighter editorial spacing. */
+@media (max-width:640px),(pointer:coarse){
+  .ghost{display:inline-flex;align-items:center;min-height:44px}
+  .fgrid ul{gap:2px}
+  .fgrid ul a{display:inline-flex;align-items:center;min-height:44px}
+  .acc__btn{min-height:44px}
+  .lb__close{display:inline-flex;align-items:center;min-height:44px}
+  .cta a{padding-block:.25em .2em}
+}
+
+/* ── font correctness (integration fix) ────────────────────────────────
+   Two measured bugs from the performance pass:
+
+   1. Instrument Serif ships weight 400 only, but .opener__h / .lock__h /
+      .close__h are h2/h3 and inherited the browser's bold default — so 226
+      of the 284 rendered display characters were SYNTHETIC bold, i.e. the
+      browser smearing a 400 face. Reset to 400 and the real letterforms show.
+   2. Space Mono 700 was 9.6KB of webfont for 81 characters in one rule.
+      Weight dropped from the import; .fig__l takes 400 so nothing synthesises. */
+.opener__h,
+.lock__h,
+.close__h{font-weight:400}
+.fig__l{font-weight:400}
+
+/* ── contrast correction (integration fix) ─────────────────────────────
+   The accessibility pass measured --muted #8b8290 FAILING AA on the purple
+   slab: .voice__who 3.58-3.80:1 (the voice cards sit on a lighter surface
+   than the slab itself) and the footer copyright 4.20:1, against a 4.5:1
+   bar. Recomputed rather than nudged by eye:
+
+     #a49bab on --ink     #050505  = 7.62:1  AA
+     #a49bab on the slab  #3d123e  = 5.80:1  AA
+     #a49bab on --ink-2   #100b12  = 7.28:1  AA
+
+   The earlier ramp audit in this file was right about --accent-lit; --muted
+   was the token it did not check against the slab. */
+:root{--muted:#a49bab}

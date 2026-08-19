@@ -1,0 +1,120 @@
+/* ══════════════════════════════════════════════════════════════════════
+   components/a11y.css — the robustness + reduced-motion layer that the
+   components own.
+
+   app/globals.css belongs to another owner, so every rule here is written
+   to win on SPECIFICITY rather than on stylesheet order: the `html`
+   prefix lifts each selector one type-selector above the equivalent rule
+   in globals.css, so this file behaves identically whichever way the CSS
+   chunks end up concatenated.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. scroll reveal ───────────────────────────────────────────────────
+   globals.css ships `.reveal{opacity:0}` and relies on JS to flip
+   `data-shown="1"`. That makes JavaScript a hard dependency for the page
+   being visible at all: no-JS, a blocked/failed bundle, a slow bundle or
+   a browser without IntersectionObserver each leave most of the document
+   permanently blank.
+
+   Inverted here. The server HTML is VISIBLE. Hiding is opt-in and only
+   happens once JS has actually proven it will animate:
+
+     html[data-reveal-mode="js"]   set by the boot script in Reveal.jsx,
+                                   during HTML parse (so no flash), only
+                                   after it has verified IntersectionObserver
+                                   and no reduced-motion preference — and
+                                   removed again by its own watchdog if
+                                   hydration never arrives.
+     .reveal[data-rv="1"]          per-element fallback, set on mount for
+                                   elements that are off-screen anyway,
+                                   for the case where the boot script
+                                   itself never ran.
+
+   `.reveal` stays on the element so any other globals.css rule keyed to
+   it keeps working; only the opacity/transform are taken back.          */
+html .reveal { opacity: 1; transform: none; }
+html[data-reveal-mode="js"] .reveal:not([data-shown="1"]),
+html .reveal[data-rv="1"]:not([data-shown="1"]) {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+/* ── 2. visually hidden ─────────────────────────────────────────────── */
+.vh {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── 3. accordion ──────────────────────────────────────────────────────
+   The button is wrapped in a heading (WAI-ARIA APG accordion pattern) so
+   the FAQ is navigable by heading. The wrapper must be typographically
+   invisible — the button already carries the type styles.              */
+.acc__h { margin: 0; font: inherit; letter-spacing: inherit; color: inherit; }
+
+/* ── 4. mosaic pause control ────────────────────────────────────────────
+   WCAG 2.2.2 (Pause, Stop, Hide): the mosaic auto-scrolls for longer than
+   5s and starts by itself, so it needs a mechanism to pause it that is
+   not "hover", which no keyboard or touch user can perform. The button
+   lives OUTSIDE .mosaic — .mosaic is `overflow:hidden` and edge-masked,
+   so anything inside it would be clipped and faded at the corner.      */
+.mosaic-wrap { position: relative; }
+.mosaic-wrap .mosaic__pause {
+  position: absolute;
+  right: clamp(1rem, 4vw, 44px);
+  bottom: 16px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: rgba(9, 4, 10, .62);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  color: var(--paper);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+  transition: color .35s var(--ease), border-color .35s var(--ease);
+}
+.mosaic-wrap .mosaic__pause:hover { color: var(--accent-lit); border-color: var(--line-accent); }
+/* the glyph is a second, non-colour affordance for the state */
+.mosaic__pause svg { flex: none; }
+.mosaic[data-paused="1"] .mosaic__track { animation-play-state: paused !important; }
+
+/* ── 5. reduced motion ──────────────────────────────────────────────────
+   globals.css covers .reveal, .marquee__track and .mosaic__track. These
+   are the ones it misses. The !important on the reveal rules is a real
+   safety net, not decoration: it has to beat the (0,3,1) hide selectors
+   above if the preference is switched on after the page has loaded.    */
+@media (prefers-reduced-motion: reduce) {
+  html .reveal,
+  html[data-reveal-mode="js"] .reveal:not([data-shown="1"]),
+  html .reveal[data-rv="1"]:not([data-shown="1"]) {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .acc__panel, .acc__chev { transition: none; }
+  .tile img, .tile__vid, .tile__date, .tile__play,
+  .mosaic__vid, .mosaic__cell img { transition: none; }
+  .lb { animation: none; }
+  .mosaic-wrap .mosaic__pause { display: none; }
+}
+
+/* ── 6. lightbox ────────────────────────────────────────────────────────
+   The dialog takes programmatic focus on open, which must not paint a
+   focus ring — :focus-visible on the close button is what the user is
+   meant to see. Keyboard focus inside is untouched.                    */
+.lb:focus { outline: none; }
+.lb__close > span, .lb__nav > span { pointer-events: none; }
