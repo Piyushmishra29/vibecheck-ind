@@ -88,6 +88,12 @@ html .reveal[data-rv="1"]:not([data-shown="1"]) {
   transition: color .35s var(--ease), border-color .35s var(--ease);
 }
 .mosaic-wrap .mosaic__pause:hover { color: var(--accent-lit); border-color: var(--line-accent); }
+
+/* Measured at 95x32 on touch — under the 44px minimum. Height only; the
+   pill's horizontal proportions are already comfortable. */
+@media (max-width: 640px), (pointer: coarse) {
+  .mosaic-wrap .mosaic__pause { min-height: 44px; }
+}
 /* the glyph is a second, non-colour affordance for the state */
 .mosaic__pause svg { flex: none; }
 .mosaic[data-paused="1"] .mosaic__track { animation-play-state: paused !important; }

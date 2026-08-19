@@ -490,3 +490,8 @@ a{color:inherit;text-decoration:none}
    The earlier ramp audit in this file was right about --accent-lit; --muted
    was the token it did not check against the slab. */
 :root{--muted:#a49bab}
+
+/* The figure row now lives inside .opener, which is text-align:center —
+   that centred each number while its wider label stayed flush left, so the
+   two never lined up. The row is a left-aligned lockup at every width. */
+.opener .figs{text-align:left}
