@@ -1,0 +1,140 @@
+/* ─────────────────────────────────────────────────────────────
+   VibeCheck animated logo — see components/Logo.jsx for markup.
+
+   INTRO TIMELINE (plays once on mount, ends at 1660ms)
+     0ms ───── V rises into place                     (780ms)
+     30ms ──── V wipe-reveals bottom-up from its vertex (640ms)
+     340ms ─── VIBECHECK letters slide up through the baseline, 52ms apart
+               (520ms each, last letter lands at 1276ms)
+     1020ms ── sparkle pops in: quarter-turn + scale   (640ms)
+     1660ms ── sparkle settles into an infinite 4.2s twinkle
+
+   COORDINATE WARNING: .vcl__v, .vcl__sparkle and .vcl__letter all sit
+   inside a potrace group transformed by scale(0.1,-0.1). In their local
+   space 1px === 0.1 viewBox units and the y-axis is FLIPPED, so a
+   NEGATIVE translateY moves an element DOWN on screen. .vcl__wipe has no
+   such parent and is in plain viewBox units.
+   ───────────────────────────────────────────────────────────── */
+
+.vcl {
+  display: block;
+  height: auto;
+}
+
+/* Timings live outside the media query so both variants share one source
+   of truth; they are inert until an animation actually references them. */
+.vcl--play {
+  --vcl-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --vcl-spark-delay: 1020ms;
+  --vcl-twinkle-delay: 1660ms;
+}
+
+/* The mark has no wordmark to wait for, so the sparkle lands much sooner. */
+.vcl--play.vcl--mark {
+  --vcl-spark-delay: 480ms;
+  --vcl-twinkle-delay: 1120ms;
+}
+
+/* Everything below is motion. Under `prefers-reduced-motion: reduce` none of
+   it applies, which leaves the logo fully drawn and completely static — the
+   hidden start states only exist inside this query. */
+@media (prefers-reduced-motion: no-preference) {
+  /* ── the V ──────────────────────────────────────────────── */
+
+  .vcl--play .vcl__v {
+    animation: vcl-v-rise 780ms var(--vcl-ease) both;
+  }
+
+  .vcl--play .vcl__wipe {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: vcl-v-wipe 640ms var(--vcl-ease) 30ms both;
+  }
+
+  @keyframes vcl-v-rise {
+    from {
+      transform: translateY(-220px); /* flipped space: 22 viewBox units DOWN */
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes vcl-v-wipe {
+    from {
+      transform: scaleY(0.06);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  /* ── the wordmark ───────────────────────────────────────── */
+
+  /* --i is set per letter in Logo.jsx and is the LEFT-TO-RIGHT index, which
+     is not the document order: potrace emitted the two C glyphs first. */
+  .vcl--play .vcl__letter {
+    animation: vcl-letter-in 520ms var(--vcl-ease) calc(340ms + var(--i) * 52ms) both;
+  }
+
+  /* A masked reveal, not a fade: the wordmark's baseline is flush with the
+     bottom of the viewBox, so the SVG viewport itself is a pixel-perfect mask.
+     Each letter starts fully below that edge (invisible, no opacity trick) and
+     slides up through it — so there is no frame in which a letter renders
+     half-clipped. 100 units clears the tallest glyph (95 units) with margin. */
+  @keyframes vcl-letter-in {
+    from {
+      transform: translateY(-1000px); /* flipped space: 100 viewBox units DOWN */
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  /* ── the sparkle ────────────────────────────────────────── */
+
+  /* Two animations on one element: the twinkle is listed second, so once its
+     delay elapses it takes over transform/opacity from the pop's fill state.
+     Both meet at rotate(0) scale(1) opacity(1), so the handover is seamless. */
+  .vcl--play .vcl__sparkle {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
+    animation:
+      vcl-spark-in 640ms var(--vcl-ease) var(--vcl-spark-delay) both,
+      vcl-twinkle 4200ms ease-in-out var(--vcl-twinkle-delay) infinite;
+  }
+
+  @keyframes vcl-spark-in {
+    0% {
+      opacity: 0;
+      transform: rotate(-100deg) scale(0.3);
+    }
+    60% {
+      opacity: 1;
+    }
+    72% {
+      transform: rotate(5deg) scale(1.07);
+    }
+    100% {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+  }
+
+  @keyframes vcl-twinkle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+    34% {
+      opacity: 0.55;
+      transform: rotate(-2.5deg) scale(0.93);
+    }
+    67% {
+      opacity: 1;
+      transform: rotate(1.5deg) scale(1.04);
+    }
+  }
+}

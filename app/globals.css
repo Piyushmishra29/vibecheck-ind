@@ -165,3 +165,161 @@ a{color:inherit;text-decoration:none}
 .cta a{display:inline-block;font-size:var(--step-3);text-transform:uppercase;border-bottom:2px solid var(--accent-mid);padding-bottom:.1em;transition:color .4s var(--ease),border-color .4s var(--ease)}
 .cta a:hover{color:var(--accent-lit);border-bottom-color:var(--accent-lit)}
 .foot{border-top:1px solid var(--line);padding-block:2.5rem;display:flex;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;color:var(--muted)}
+
+/* ══════════════════════════════════════════════════════════════════════
+   REFERENCE ARCHITECTURE
+   Structure modelled on the reference build. Adopted: the hairline-anchored
+   heading lockup, figure-led sections, two-tone chapter blocking, trust
+   bookends, deliberate viewport peek. Deliberately NOT copied: the static
+   page (we animate), the unmasked marquee, three identical feature modules,
+   text-transform:capitalize on sentences, blur(200px) vignette.
+   ══════════════════════════════════════════════════════════════════════ */
+
+.container{max-width:1320px;margin-inline:auto;padding-inline:20px}
+.band{padding-block:clamp(2rem,4vw,32px) clamp(3.5rem,8vw,80px)}
+.band--dark{background:var(--accent-deep);padding-block:clamp(3.5rem,8vw,80px)}
+.band--tight{padding-block:clamp(1rem,2vw,18px) clamp(1rem,2vw,18px)}
+
+/* ── the heading lockup — pill, 1px rule, left-aligned 2-line H2 ─────── */
+.pill{display:inline-block;border:1px solid var(--accent-mid);border-radius:20px;
+  padding:4px 10px 3px;font-family:var(--font-mono),monospace;font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--accent-lit)}
+.lock{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center}
+.lock__row{display:flex;align-items:center;gap:40px;justify-content:center}
+.lock__rule{width:1px;height:104px;background:var(--line-accent);flex:none}
+.lock__h{font-size:clamp(1.9rem,1.2rem + 2vw,40px);line-height:1.3;margin:0;text-align:left;
+  font-family:var(--font-display),Georgia,serif;letter-spacing:-.01em}
+.lock + *{margin-top:60px}
+@media (max-width:600px){.lock__rule{height:64px}.lock__row{gap:20px}}
+
+/* drop-tick chapter opener */
+.opener{text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;
+  padding-block:clamp(3rem,7vw,80px)}
+.opener__tick{width:1px;height:48px;background:var(--line-accent)}
+.opener__h{font-size:clamp(1.6rem,1rem + 2.4vw,36px);line-height:1.3;margin:0;
+  font-family:var(--font-display),Georgia,serif}
+.opener__p{font-size:18px;line-height:1.78;color:var(--paper-dim);max-width:800px;margin:0}
+
+/* ── mosaic marquee: reel columns + stat chips, masked edges ────────── */
+.mosaic{overflow:hidden;height:min(640px,72svh);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mosaic__track{display:flex;gap:12px;width:max-content;animation:mosaic 52s linear infinite}
+.mosaic:hover .mosaic__track,.mosaic:focus-within .mosaic__track{animation-play-state:paused}
+@keyframes mosaic{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mosaic__col{display:flex;flex-direction:column;gap:12px;width:290px;flex:none}
+.mosaic__cell{border-radius:24px;overflow:hidden;position:relative;background:var(--ink-2);
+  border:1px solid var(--line);flex:1;min-height:0}
+.mosaic__cell img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.05)}
+.chip{position:absolute;inset:auto auto 0 0;margin:4px;padding:8px 16px;border-radius:24px;
+  background:rgba(9,4,10,.55);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.chip__n{font-family:var(--font-mono),monospace;font-size:40px;line-height:1;color:var(--paper)}
+.chip__l{font-size:12px;line-height:1.2;font-weight:600;text-transform:uppercase;
+  color:var(--accent-pale);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.mosaic__track{animation:none}}
+
+/* ── figure row: 3px bar + big mono number + uppercase label ────────── */
+.figs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:60px}
+.fig{display:flex;gap:clamp(1rem,2vw,40px);align-items:stretch;min-height:84px}
+.fig__bar{width:3px;background:var(--accent);flex:none}
+.fig__n{font-family:var(--font-mono),monospace;font-size:clamp(2rem,1.2rem + 3vw,56px);
+  line-height:1;color:var(--paper)}
+.fig__l{font-family:var(--font-mono),monospace;font-size:14px;line-height:1.4;font-weight:700;
+  text-transform:uppercase;color:var(--accent-lit);margin-top:10px;letter-spacing:.04em}
+@media (max-width:700px){.figs{grid-template-columns:1fr}}
+
+/* ── feature cards ─────────────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:32px;overflow:hidden;
+  display:flex;flex-direction:column;transition:border-color .5s var(--ease)}
+.card:hover{border-color:var(--line-accent)}
+.card__body{padding:24px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card__t{font-size:20px;line-height:1.5;margin:0;font-weight:600}
+.card__claim{color:var(--accent-lit);margin:0}
+.card__p{color:var(--paper-dim);margin:0;flex:1}
+.ghost{align-self:flex-start;border:1px solid var(--paper);border-radius:100px;padding:8px 16px;
+  font-family:var(--font-mono),monospace;font-size:13px;text-transform:uppercase;letter-spacing:.1em;
+  margin-top:8px;transition:.4s var(--ease)}
+.ghost:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.card__media{height:150px;background:var(--accent-deep);overflow:hidden}
+.card__media img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+@media (max-width:900px){.cards{grid-template-columns:1fr}}
+
+/* ── voices: mirrored 2-row grid, stat-first ───────────────────────── */
+.voices{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.voice{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:8px;padding:16px;
+  display:flex;gap:24px}
+.voice--wide{grid-column:span 2}
+.voice--wide:first-of-type{background:rgba(255,255,255,.06)}
+.voice__media{flex:0 0 38%;border-radius:8px;overflow:hidden;position:relative;min-height:200px}
+.voice__media img{width:100%;height:100%;object-fit:cover}
+.voice__txt{display:flex;flex-direction:column;gap:12px;justify-content:center}
+.voice__stat{display:flex;align-items:baseline;gap:12px}
+.voice__n{font-size:20px;font-weight:600;color:var(--paper)}
+.voice__sl{font-size:12px;font-weight:700;text-transform:uppercase;color:var(--accent-pale);line-height:1.3}
+.voice__q{font-style:italic;font-size:18px;line-height:1.6;margin:0;color:var(--paper)}
+.voice__who{font-family:var(--font-mono),monospace;font-size:12px;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--muted)}
+@media (max-width:991px){.voices{grid-template-columns:1fr}.voice--wide{grid-column:auto}
+  .voice{flex-direction:column}.voice__media{flex:none;height:220px}}
+
+/* ── series band (runs into the slab above, no seam) ───────────────── */
+.badges{display:flex;gap:22px;justify-content:flex-end;flex-wrap:wrap}
+.badge{border:1px solid var(--accent-mid);border-radius:12px;padding:14px 20px;text-align:center;min-width:130px}
+.badge__k{font-family:var(--font-mono),monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent-lit)}
+.badge__t{font-family:var(--font-display),Georgia,serif;font-size:22px;margin-top:6px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+@media (max-width:900px){.split{grid-template-columns:1fr}.badges{justify-content:flex-start}}
+
+/* ── faq ───────────────────────────────────────────────────────────── */
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.faq .lock{align-items:flex-start;text-align:left}
+.faq .lock__row{justify-content:flex-start}
+.acc{border-bottom:1px solid var(--line)}
+.acc__btn{width:100%;background:none;border:0;color:inherit;display:flex;align-items:center;gap:24px;
+  padding:20px 24px 20px 10px;cursor:pointer;text-align:left;font:inherit;font-size:17px}
+.acc__btn:hover{color:var(--accent-lit)}
+.acc__chev{flex:none;transition:transform .4s var(--ease);color:var(--accent-lit)}
+.acc[data-open="1"] .acc__chev{transform:rotate(180deg)}
+.acc__panel{overflow:hidden;height:0;transition:height .5s var(--ease)}
+.acc__inner{padding:0 24px 20px 34px;color:var(--paper-dim);max-width:60ch}
+@media (max-width:991px){.faq{grid-template-columns:1fr}}
+
+/* ── closing card — radial vignette, not blur(200px) ───────────────── */
+.close{position:relative;border-radius:48px;overflow:hidden;background:var(--accent-deep);
+  padding:clamp(3rem,8vw,90px) clamp(1.25rem,4vw,60px);text-align:center;isolation:isolate}
+.close::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(5,2,6,.92) 0%,rgba(5,2,6,.55) 55%,transparent 100%)}
+.close__bg{position:absolute;inset:0;z-index:-2;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(1) brightness(.55)}
+.close__h{font-family:var(--font-display),Georgia,serif;font-size:clamp(2rem,1rem + 4.5vw,48px);
+  line-height:1.28;margin:0 0 1rem;letter-spacing:-.01em}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;
+  border-radius:100px;padding:16px 32px;font-family:var(--font-mono),monospace;font-size:14px;
+  text-transform:uppercase;letter-spacing:.12em;transition:.4s var(--ease)}
+.btn:hover{background:var(--accent-lit);color:var(--ink)}
+.trust{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:28px;
+  padding-top:24px;border-top:1px solid var(--line)}
+.trust__i{font-family:var(--font-mono),monospace;font-size:12px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--accent-pale)}
+
+/* ── footer ────────────────────────────────────────────────────────── */
+.fgrid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px}
+.fgrid h4{margin:0 0 14px}
+.fgrid ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.fgrid a:hover{color:var(--accent-lit)}
+.ftag{color:var(--accent-lit);font-weight:700;font-size:14px;line-height:1.5;margin:14px 0 10px}
+@media (max-width:900px){.fgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.fgrid{grid-template-columns:1fr}}
+
+/* ── fixes after visual review ─────────────────────────────────────── */
+.hero-logo{margin-inline:auto}
+
+/* voices: media was stretching to the grid row and dragging card height
+   with it. Fix the media to a portrait ratio and let content size the card. */
+.voices{grid-auto-rows:auto;align-items:start}
+.voice{align-items:stretch}
+.voice__media{flex:0 0 34%;aspect-ratio:4/5;min-height:0;align-self:center}
+.voice__media img{height:100%}
+.voice__txt{flex:1;justify-content:center;padding-block:8px}
