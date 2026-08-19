@@ -495,3 +495,13 @@ a{color:inherit;text-decoration:none}
    that centred each number while its wider label stayed flush left, so the
    two never lined up. The row is a left-aligned lockup at every width. */
 .opener .figs{text-align:left}
+
+/* ── voices media on mobile (regression fix) ───────────────────────────
+   The `aspect-ratio:4/5` added during integration carried no media query,
+   so it landed after the ≤991px `height:220px` rule and beat it. Once the
+   card stacks, the media is full-width, and 4:5 of 390px is 487px tall —
+   measured at ~780px of an 844px viewport, i.e. one testimonial filling
+   the whole screen. Re-assert a fixed height once stacked. */
+@media (max-width:991px){
+  .voice__media{aspect-ratio:auto;height:230px;flex:none;align-self:stretch}
+}
