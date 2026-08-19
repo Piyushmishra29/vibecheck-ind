@@ -9,6 +9,16 @@ import { IG_URL, IG_HANDLE, FOLLOWERS_LABEL, POST_COUNT } from './site';
 const IG = IG_URL;
 const P = posts.map((p) => p.poster);
 
+/* Highest view count in the archive, derived rather than typed in, so the
+   headline figure can never drift out of step with the posts it describes. */
+const TOP_VIEWS = Math.max(0, ...posts.map((p) => p.views || 0));
+const TOP_VIEWS_LABEL =
+  TOP_VIEWS >= 1_000_000
+    ? `${(TOP_VIEWS / 1_000_000).toFixed(1)}M`
+    : TOP_VIEWS >= 1_000
+      ? `${Math.round(TOP_VIEWS / 1_000)}K`
+      : String(TOP_VIEWS);
+
 /* ══════════════════════════════════════════════════════════════════════
    WHAT IS REAL AND WHAT IS NOT
 
@@ -18,40 +28,28 @@ const P = posts.map((p) => p.poster);
      · "Follow us to know where the good vibes are"
      · series: Diwali '25, Dawntown
 
-   PLACEHOLDER — invented, must not ship as fact:
-     · CHIPS + two of the three FIGURES  (see the comments on each)
-     · every VOICES entry: the stat, the quote and the attribution
-     · most FAQ answers (the ones whose copy says "Placeholder answer")
-
-   Placeholders are kept deliberately odd and decimal so they read as
-   measurements once swapped, and every one of them is flagged in a
-   comment here. Nothing invented is emitted into the JSON-LD in
-   app/layout.jsx.
+   The site is LIVE at vibecheckind.com. Nothing invented renders any more:
+   every figure below is measured, and the testimonials section is gone
+   rather than carrying quotes nobody gave. Only the FAQ answers 2-5 remain
+   as generic drafts, and those state no checkable fact.
    ══════════════════════════════════════════════════════════════════════ */
 
-/* PLACEHOLDER — all three. Rendered as chips over the scrolling mosaic. */
+/* REAL. Chips over the scrolling mosaic. Engagement figures come from the
+   public profile API per shortcode (see data/posts.json); the follower and
+   post counts are Instagram's own. */
 const CHIPS = [
-  { n: '4.2M', l: 'Monthly\nviews' },
-  { n: '+38%', l: 'Follower growth\nper quarter' },
-  { n: '11.4%', l: 'Average\nengagement' },
+  { n: TOP_VIEWS_LABEL, l: 'Views on one\nreel' },
+  { n: FOLLOWERS_LABEL, l: 'Community on\nInstagram' },
+  { n: String(POST_COUNT), l: 'Posts\npublished' },
 ];
 
-/* First figure is REAL (Instagram's own follower count). The second and
-   third are PLACEHOLDER — swap both for real analytics before launch. */
+/* REAL, all three. The top-reel figure is the highest view count in
+   data/posts.json — derived, not asserted, so it cannot drift out of step
+   with the archive. */
 const FIGURES = [
-  { n: FOLLOWERS_LABEL, l: 'Community on Instagram' }, // real
-  { n: '4.2M', l: 'Monthly video views' }, //             PLACEHOLDER
-  { n: '11.4%', l: 'Engagement rate' }, //                PLACEHOLDER
-];
-
-/* PLACEHOLDER, all four — stat, quote and attribution alike. The word
-   "Placeholder" is left visible in the role line on purpose, so nobody
-   can mistake these for client testimonials on a staging link. */
-const VOICES = [
-  { n: '+26%', sl: 'Door numbers\non the night', q: 'They shot one reel at our launch and we watched the queue double before midnight.', who: 'Venue Partner', role: 'Placeholder · Bengaluru', poster: P[4] },
-  { n: '3.1M', sl: 'Views on a\nsingle cut', q: 'The street interview format travels. People send it to each other.', who: 'Artist', role: 'Placeholder · Mumbai', poster: null },
-  { n: '11%', sl: 'Ticket sales\nfrom one post', q: 'Cheaper than the ad spend, and it did not feel like an ad.', who: 'Festival Team', role: 'Placeholder · Goa', poster: null },
-  { n: '7.9%', sl: 'Follower lift\nin a week', q: 'We got tagged by people who were not even there. That is the whole point.', who: 'Brand Manager', role: 'Placeholder · Delhi', poster: P[9] },
+  { n: FOLLOWERS_LABEL, l: 'Community on Instagram' },
+  { n: String(POST_COUNT), l: 'Posts published' },
+  { n: TOP_VIEWS_LABEL, l: 'Views on a single reel' },
 ];
 
 /* Diwali '25 and Dawntown are REAL series names off the profile.
@@ -220,53 +218,15 @@ export default function Page() {
           </Reveal>
         </section>
 
-        {/* ── 5. voices — dark slab begins ──────────────────────────────── */}
-        <section id="voices" aria-labelledby="h-voices" className="band--dark">
-          <div className="container">
-            <Reveal className="lock">
-              <span className="pill">Voices</span>
-              <span className="lock__row">
-                <span className="lock__rule" />
-                <h2 id="h-voices" className="lock__h">
-                  What happens after
-                  <br />
-                  we post
-                </h2>
-              </span>
-            </Reveal>
+        {/* The testimonials section stood here. It carried four invented
+            quotes with invented attributions ("Venue Partner · Bengaluru"),
+            which is fabricated social proof about real kinds of business.
+            Removed outright rather than softened: there is no honest version
+            of a testimonial nobody gave. Restore it when real ones exist —
+            the .voices styles are still in globals.css. */}
 
-            <div className="voices">
-              {VOICES.map((v, i) => (
-                <Reveal
-                  key={v.who}
-                  className={`voice${i === 0 || i === 3 ? ' voice--wide' : ''}`}
-                  delay={i * 90}
-                >
-                  {v.poster && (
-                    <div className="voice__media">
-                      <img src={v.poster} alt="" loading="lazy" />
-                    </div>
-                  )}
-                  <figure className="voice__txt" style={{ margin: 0 }}>
-                    <div className="voice__stat">
-                      <span className="voice__n">{v.n}</span>
-                      <span className="voice__sl">{v.sl}</span>
-                    </div>
-                    <blockquote className="voice__q" style={{ margin: 0 }}>
-                      {`“${v.q}”`}
-                    </blockquote>
-                    <figcaption className="voice__who">
-                      {v.who} · {v.role}
-                    </figcaption>
-                  </figure>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── 6. series band — same slab, no seam ───────────────────────── */}
-        <section id="series" aria-labelledby="h-series" className="band--dark" style={{ paddingTop: 0 }}>
+        {/* ── series band ───────────────────────────────────────────────── */}
+        <section id="series" aria-labelledby="h-series" className="band--dark">
           <div className="container split">
             <Reveal className="lock" style={{ alignItems: 'flex-start', textAlign: 'left' }}>
               <span className="pill">Series</span>

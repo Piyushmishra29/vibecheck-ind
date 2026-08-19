@@ -5,9 +5,15 @@
    image URLs, robots.txt, sitemap.xml and every @id in the JSON-LD graph.
    No other file hardcodes a host.
 
-   Set to the live domain. Note the canonical host includes `www` — pick one
-   and redirect the other at the server, or the two will compete in search.  */
-export const SITE_URL = 'https://www.vibecheck.channel';
+   The live domain. Verified against DNS: registered, active, nameservers
+   atlas/hyperion.dns-parking.com (Hostinger), apex A -> 2.57.91.91 and www
+   a CNAME onto the apex.
+
+   Canonical is the APEX, deliberately — www already CNAMEs to it, so the
+   apex is the address that actually exists and everything should point at
+   one host. If the server ever serves both, redirect www -> apex rather
+   than letting the two compete in search.                                  */
+export const SITE_URL = 'https://vibecheckind.com';
 
 /* Verified facts only. Everything here is checkable against the public
    Instagram profile — no invented figures live in this file. */
