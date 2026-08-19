@@ -52,18 +52,25 @@ file with the original mark and it drops straight in. Nothing else references it
 
 ## Brand
 
+Real brand assets supplied by the client, in `public/brand/`. The brand colour is **purple `#7a257c`**
+— taken from the logo lockup background, not guessed.
+
 | | |
 |---|---|
+| Brand purple | `#7a257c` |
 | Ink | `#050505` |
 | Paper | `#f4f1ec` |
-| Red | `#c00c18` |
-| Muted | `#6e6e73` |
+| Tints | `#8c428e` `#924d94` `#b788b8` `#cdaece` `#e6d5e6` |
 | Display | Instrument Serif |
 | Body | Inter |
 | Mono | Space Mono |
 
-Palette sampled from the account's own grid — the profile mark is pure black and white, the reels
-run high-contrast with a recurring red.
+The mark is a white serif **V** with a four-point sparkle, wordmark VIBECHECK below in a spaced
+serif. `public/logo.svg` is a vector trace of the supplied PNG, split into three animatable groups
+(`#vc-v`, `#vc-sparkle`, `#vc-word`) so the logo can animate rather than sit as a flat image.
+
+Source files kept at `public/brand/`: stacked and horizontal lockups in white and black, plus the
+purple square. Favicon, apple-touch-icon and `og.png` are generated from these.
 
 ## Content shape (observed)
 
