@@ -86,6 +86,14 @@ function jsonLd() {
     },
     image: { '@id': `${SITE_URL}/#logo` },
     areaServed: { '@type': 'Country', name: 'India' },
+    /* VibeCheck is a brand of Top Marketing Solutions. Stated as an
+       ownership relation so a crawler resolves the two as one group rather
+       than as unrelated companies. No url/@id for the parent until its own
+       domain is confirmed — a wrong one is worse than none. */
+    parentOrganization: {
+      '@type': 'Organization',
+      name: 'Top Marketing Solutions',
+    },
     knowsAbout: ['Nightlife', 'Music venues', 'Short-form video', 'Street interviews', 'Indian club culture'],
     sameAs: [IG_URL],
     /* Real follower count, as Instagram itself reports it. Google's
