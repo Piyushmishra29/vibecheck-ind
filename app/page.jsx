@@ -190,6 +190,36 @@ export default function Page() {
           </p>
         </section>
 
+        {/* ── clients ───────────────────────────────────────────────────────
+            Logo wall supplied by the client, lifted from the Top Marketing
+            Solutions company profile. NOTE FOR WHOEVER MAINTAINS THIS: these
+            are the parent group's accounts. VibeCheck sits inside that group,
+            which is why they appear here — but if one of these brands ever
+            asks, the honest answer is that the work was the group's. */}
+        <section id="clients" aria-labelledby="h-clients" className="container band">
+          <Reveal className="lock">
+            <span className="pill">Clients</span>
+            <span className="lock__row">
+              <span className="lock__rule" />
+              <h2 id="h-clients" className="lock__h">
+                Brands we
+                <br />
+                work with
+              </h2>
+            </span>
+          </Reveal>
+          <Reveal className="clients">
+            <img
+              src="/brand/clients.webp"
+              alt="Logos of brands the group has worked with, including Porsche, Meta, Paytm Insider, Tuborg and The MET"
+              loading="lazy"
+              decoding="async"
+              width="1500"
+              height="689"
+            />
+          </Reveal>
+        </section>
+
         {/* ── 5. voices — dark slab begins ──────────────────────────────── */}
         <section id="voices" aria-labelledby="h-voices" className="band--dark">
           <div className="container">

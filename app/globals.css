@@ -523,6 +523,23 @@ a{color:inherit;text-decoration:none}
 .parentco{margin:0 0 .75rem;font-size:13px;line-height:1.5;color:var(--paper-dim)}
 .parentco strong{font-weight:600;color:var(--accent-pale)}
 
+/* ── client logo wall ──────────────────────────────────────────────────
+   Source artwork is black marks on white. Inverted rather than dropped on
+   a white slab: a bright block would fight the dark editorial ground, and
+   these marks are effectively monochrome so inversion does not distort
+   them. Held slightly back at rest, full strength on hover.
+
+   Sixty-odd logos cannot be legible across a 390px phone at any layout, so
+   the wall keeps a min-width and scrolls sideways there instead of shrinking
+   every mark into illegibility. */
+.clients{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+.clients img{
+  width:100%;min-width:760px;height:auto;
+  filter:invert(1) grayscale(1);opacity:.8;
+  transition:opacity .5s var(--ease)}
+.clients:hover img{opacity:1}
+@media (max-width:700px){.clients img{min-width:660px}}
+
 /* ── reel engagement overlay ───────────────────────────────────────────
    Every figure is REAL, read per shortcode from the public profile API —
    never randomised. Fabricated likes on genuine posts would be invented
