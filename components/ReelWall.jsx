@@ -1,13 +1,93 @@
 'use client';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Reveal from './Reveal';
 
-/* The video never touches our server. Tiles are local 9:16 posters (~35 KB each);
-   playback happens inside Instagram's official embed iframe, mounted only when
-   a tile is opened. Nothing is downloaded, re-encoded or re-hosted. */
+/* Full playback never touches our server — it happens inside Instagram's
+   official embed iframe, mounted only when a tile is opened.
+   Hover preview is a separate, tiny thing: a 2.5s muted 360px clip
+   (~90 KB) whose src is not attached until the pointer actually lands on
+   the tile. preload="none" + deferred src means the page costs nothing
+   extra until you hover, and a tile you never touch never downloads. */
+
 function embedUrl(p) {
-  const kind = p.type === 'reel' ? 'reel' : 'p';
-  return `https://www.instagram.com/${kind}/${p.shortcode}/embed/captioned/`;
+  return `https://www.instagram.com/${p.type === 'reel' ? 'reel' : 'p'}/${p.shortcode}/embed/captioned/`;
+}
+
+function Tile({ post, index, total, onOpen }) {
+  const vid = useRef(null);
+  const [armed, setArmed] = useState(false); // src attached yet?
+  const [playing, setPlaying] = useState(false);
+
+  const canHover = () =>
+    typeof window !== 'undefined' &&
+    window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const start = useCallback(() => {
+    if (!post.preview || !canHover()) return;
+    setArmed(true);
+    const v = vid.current;
+    if (!v) return;
+    // First hover attaches the source. preload="none" means setting src alone
+    // starts no fetch — load() is required, and play() then resolves once the
+    // first frames arrive.
+    if (!v.getAttribute('src')) {
+      v.setAttribute('src', post.preview);
+      v.load();
+    }
+    v.play().then(() => setPlaying(true)).catch(() => {});
+  }, [post.preview]);
+
+  const stop = useCallback(() => {
+    const v = vid.current;
+    setPlaying(false);
+    if (!v) return;
+    v.pause();
+    try { v.currentTime = 0; } catch {}
+  }, []);
+
+  return (
+    <button
+      className="tile"
+      onClick={() => onOpen(index)}
+      onMouseEnter={start}
+      onMouseLeave={stop}
+      onFocus={start}
+      onBlur={stop}
+      aria-label={`Open post ${index + 1} of ${total}${post.date ? `, ${post.date}` : ''}`}
+    >
+      <img src={post.poster} alt="" loading="lazy" decoding="async" />
+
+      {post.preview && (
+        <video
+          ref={vid}
+          className="tile__vid"
+          data-on={playing ? '1' : '0'}
+          muted
+          loop
+          playsInline
+          preload="none"
+          aria-hidden="true"
+          poster={post.poster}
+        />
+      )}
+
+      <span className="tile__idx mono">{String(index + 1).padStart(2, '0')}</span>
+
+      <span className="tile__play" data-hide={playing ? '1' : '0'} aria-hidden="true">
+        <span>
+          <svg width="13" height="15" viewBox="0 0 13 15" fill="none">
+            <path d="M12.5 7.5 0 15V0l12.5 7.5Z" fill="currentColor" />
+          </svg>
+        </span>
+      </span>
+
+      <span className="tile__date mono">
+        <span>{post.date || ''}</span>
+        <span>{post.isVideo ? 'REEL' : 'POST'}</span>
+      </span>
+    </button>
+  );
 }
 
 export default function ReelWall({ posts }) {
@@ -40,25 +120,7 @@ export default function ReelWall({ posts }) {
       <div className="wall">
         {posts.map((p, i) => (
           <Reveal key={p.shortcode} delay={(i % 6) * 60}>
-            <button
-              className="tile"
-              onClick={() => setOpen(i)}
-              aria-label={`Open post ${i + 1} of ${posts.length}${p.date ? `, ${p.date}` : ''}`}
-            >
-              <img src={p.poster} alt="" loading="lazy" decoding="async" />
-              <span className="tile__idx mono">{String(i + 1).padStart(2, '0')}</span>
-              <span className="tile__play" aria-hidden="true">
-                <span>
-                  <svg width="13" height="15" viewBox="0 0 13 15" fill="none">
-                    <path d="M12.5 7.5 0 15V0l12.5 7.5Z" fill="currentColor" />
-                  </svg>
-                </span>
-              </span>
-              <span className="tile__date mono">
-                <span>{p.date || ''}</span>
-                <span>{p.isVideo ? 'REEL' : 'POST'}</span>
-              </span>
-            </button>
+            <Tile post={p} index={i} total={posts.length} onOpen={setOpen} />
           </Reveal>
         ))}
       </div>

@@ -5,6 +5,7 @@
     "isVideo": false,
     "date": "August 14, 2026",
     "poster": "/posters/DcDR0vcGO8n.jpg",
+    "preview": null,
     "caption": ""
   },
   {
@@ -13,6 +14,7 @@
     "isVideo": true,
     "date": "July 31, 2026",
     "poster": "/posters/DbdMZBehRLJ.jpg",
+    "preview": "/previews/DbdMZBehRLJ.mp4",
     "caption": ""
   },
   {
@@ -21,6 +23,7 @@
     "isVideo": true,
     "date": "July 25, 2026",
     "poster": "/posters/DbNuZRnB0Ep.jpg",
+    "preview": "/previews/DbNuZRnB0Ep.mp4",
     "caption": ""
   },
   {
@@ -29,6 +32,7 @@
     "isVideo": true,
     "date": "July 23, 2026",
     "poster": "/posters/DbIdNmpBplP.jpg",
+    "preview": "/previews/DbIdNmpBplP.mp4",
     "caption": ""
   },
   {
@@ -37,6 +41,7 @@
     "isVideo": true,
     "date": "July 21, 2026",
     "poster": "/posters/DbDEIafh_iD.jpg",
+    "preview": "/previews/DbDEIafh_iD.mp4",
     "caption": ""
   },
   {
@@ -45,6 +50,7 @@
     "isVideo": true,
     "date": "July 13, 2026",
     "poster": "/posters/Davc4l-BpL4.jpg",
+    "preview": "/previews/Davc4l-BpL4.mp4",
     "caption": ""
   },
   {
@@ -53,6 +59,7 @@
     "isVideo": true,
     "date": "July 12, 2026",
     "poster": "/posters/DasF_EVBM28.jpg",
+    "preview": "/previews/DasF_EVBM28.mp4",
     "caption": ""
   },
   {
@@ -61,6 +68,7 @@
     "isVideo": true,
     "date": "July 06, 2026",
     "poster": "/posters/Dac6T7ehdUx.jpg",
+    "preview": "/previews/Dac6T7ehdUx.mp4",
     "caption": ""
   },
   {
@@ -69,6 +77,7 @@
     "isVideo": true,
     "date": "June 30, 2026",
     "poster": "/posters/DaNUXeYBwGG.jpg",
+    "preview": "/previews/DaNUXeYBwGG.mp4",
     "caption": ""
   },
   {
@@ -77,6 +86,7 @@
     "isVideo": true,
     "date": "June 24, 2026",
     "poster": "/posters/DZ98QmFBmsh.jpg",
+    "preview": "/previews/DZ98QmFBmsh.mp4",
     "caption": ""
   },
   {
@@ -85,6 +95,7 @@
     "isVideo": true,
     "date": "June 14, 2026",
     "poster": "/posters/DZj8kK8BGJK.jpg",
+    "preview": null,
     "caption": ""
   },
   {
@@ -93,6 +104,7 @@
     "isVideo": true,
     "date": "June 12, 2026",
     "poster": "/posters/DZe2a08BWET.jpg",
+    "preview": null,
     "caption": ""
   }
 ]
