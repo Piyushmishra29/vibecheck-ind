@@ -25,9 +25,8 @@ import { IG_URL, TAGLINE } from './site';
 const SECTIONS = [
   { id: 'archive', n: '01', label: 'Archive' },
   { id: 'clients', n: '02', label: 'Clients' },
-  { id: 'voices', n: '03', label: 'Voices' },
-  { id: 'series', n: '04', label: 'Series' },
-  { id: 'faqs', n: '05', label: 'FAQs' },
+  { id: 'series', n: '03', label: 'Series' },
+  { id: 'faqs', n: '04', label: 'FAQs' },
 ];
 
 export default function SiteNav() {
