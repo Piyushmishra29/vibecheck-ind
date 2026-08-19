@@ -39,7 +39,17 @@ setTimeout(function(){if(!d.hasAttribute("data-reveal-ready"))off()},2000);
 
 let bootClaimed = false;
 
-export default function Reveal({ children, delay = 0, as: Tag = 'div', className = '', ...rest }) {
+export default function Reveal({
+  children,
+  delay = 0,
+  as: Tag = 'div',
+  className = '',
+  /* Opt out entirely: the phone film feed uses full-screen panels, and a
+     panel arriving at opacity 0 would flash blank at exactly the moment it
+     fills the viewport. There the scroll IS the entrance. */
+  disabled = false,
+  ...rest
+}) {
   const ref = useRef(null);
   const [isBoot] = useState(() => {
     if (bootClaimed) return false;
@@ -57,6 +67,12 @@ export default function Reveal({ children, delay = 0, as: Tag = 'div', className
     const show = () => {
       el.dataset.shown = '1';
     };
+
+    /* Opted out: show immediately and wire nothing up. */
+    if (disabled) {
+      show();
+      return;
+    }
 
     const reduced =
       typeof window.matchMedia === 'function' &&
@@ -125,7 +141,7 @@ export default function Reveal({ children, delay = 0, as: Tag = 'div', className
       el.removeEventListener('focusin', onFocusIn);
       if (io) io.disconnect();
     };
-  }, [delay]);
+  }, [delay, disabled]);
 
   return (
     <Tag ref={ref} className={`reveal ${className}`} {...rest}>
