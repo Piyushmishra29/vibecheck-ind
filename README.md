@@ -1,125 +1,142 @@
-# VibeCheck — vibecheck.ind
+# VibeCheck
 
-Site for **VibeCheck** ([@vibecheck.ind](https://www.instagram.com/vibecheck.ind/)) — a culture and
-nightlife media brand in India. *We Connect, Curate and Create.*
+Site for **VibeCheck** — [@vibecheck.ind](https://www.instagram.com/vibecheck.ind/) — a culture and
+nightlife media desk in India. *We Connect, Curate and Create.*
 
-Next.js 15 static export. One long editorial page, purple on near-black, the reels presented as a
-numbered archive that plays on hover.
+One long page, dark editorial, brand purple. The work is vertical video, so the site is built around
+a wall of 9:16 films that play on hover and open into Instagram's own player.
 
-## The core idea: nothing is re-hosted
+Next.js 15 App Router, static export, three dependencies, no CSS framework, no animation library.
 
-Video never touches the server. Each tile is a local 9:16 poster (~35 KB); full playback happens
-inside **Instagram's official embed iframe**, mounted only when a tile is opened.
+---
 
-- No downloading, re-encoding or re-uploading of reels
-- No bandwidth cost for full video, ever
-- Posts stay live — edit or delete on Instagram and the site follows
-
-**Hover-to-play previews** sit on top of that: a short muted clip per post in `public/previews/`
-(~70–145 KB each). The `<video>` element carries `preload="none"` and no `src` at all until the
-pointer or keyboard focus actually lands on the tile, so a tile you never touch never downloads.
-The same hook drives the scrolling mosaic under the hero; hovering a cell pauses the scroll and
-plays that cell. Disabled entirely under `@media (hover: none)`.
-
-## Run it
+## Quick start
 
 ```bash
 npm install
 npm run dev      # http://localhost:3030
-npm run build    # static export to out/
+npm run build    # static export → out/
+npx serve out    # preview the real build
 ```
 
-Parallel builds: `NEXT_DIST_DIR=.next-foo npx next build` keeps the `.next` cache separate.
-(`out/` is still shared, so only one build at a time can be trusted to leave it intact.)
+The build is fully static — `out/` can be dropped on any host with no server, no Node runtime and no
+build step at the edge.
+
+**Parallel builds.** `next.config.mjs` reads `NEXT_DIST_DIR`, so more than one build can run at once
+without clobbering a shared `.next`:
+
+```bash
+NEXT_DIST_DIR=.next-mine npx next build
+```
+
+This exists because running `next build` while `next dev` is live corrupts the shared cache and the
+dev server starts returning `500 MODULE_NOT_FOUND`. If that happens: `rm -rf .next` and restart.
+
+---
+
+## The idea: nothing is re-hosted
+
+Full-length video never touches this server. The site holds three things per post:
+
+| | Size | Where it plays |
+|---|---|---|
+| Poster (WebP, 9:16) | ~23 KB | The grid tile |
+| Hover preview (2.5s, muted, 360px, h264) | ~77 KB | On hover, in place |
+| The actual film | 0 bytes | Instagram's official embed iframe |
+
+So the archive stays live — edit or delete a post on Instagram and the site follows — and the page
+costs nothing for video until someone interacts.
+
+**Preview clips are the one exception, and they are lazy.** The `<video>` ships with
+`preload="none"` and **no `src` attribute at all**. Nothing is fetched until a pointer settles on a
+tile for 130ms. Verified: **0** preview requests on page load, **1** after hovering one tile, **0**
+from sweeping the pointer across six tiles.
+
+That 130ms hover-intent delay matters — without it, dragging the pointer across the wall to reach
+one tile pulled every clip it crossed (measured at 254 KB for a single intended hover).
+
+---
 
 ## Page architecture
 
-Nine blocks, in order, all in `app/page.jsx`:
+| # | Section | Notes |
+|---|---|---|
+| — | Masthead | Invisible over the hero, settles onto a hairline that doubles as reading progress. Collapses to a numbered index panel under 860px |
+| 1 | Hero | Animated logo, headline, one CTA, trust line. Deliberately under `100svh` so the wall below peeks |
+| 2 | Mosaic | Auto-scrolling wall of stills. Pauses on hover; each cell plays its own preview |
+| 3 | The brief | Thesis statement + the figure row |
+| 4 | The archive | 12 tiles, hover to play, click for the Instagram embed |
+| 5 | Voices | Testimonials on the purple slab |
+| 6 | Series | Runs into the slab above with no seam |
+| 7 | FAQs | Accordion, first item open |
+| 8 | Contact | Closing card over a still, radial vignette |
+| — | Footer | Four columns |
 
-| # | Section | id | What it is |
-|---|---------|-----|-----------|
-| 1 | Hero | `#top` | Animated logo, h1, follow CTA, two real counts |
-| — | Mosaic | — | Auto-scrolling reel columns + stat chips, masked edges |
-| 2 | The brief | `#brief` | Chapter opener — the thesis |
-| 3 | What we do | `#approach` | Three pillar cards + a figure row |
-| 4 | The archive | `#archive` | The wall — hover previews, click for the IG embed |
-| 5 | Voices | `#voices` | Four testimonials on a dark slab |
-| 6 | Series | `#series` | Diwali '25 / Dawntown / Breakdown badges |
-| 7 | FAQs | `#faqs` | Accordion |
-| 8 | Contact | `#contact` | Closing card |
-| 9 | Footer | — | Lockup, sitemap columns, back to top |
+The structural device doing most of the work is the **heading lockup**: an eyebrow pill, a 1px
+vertical rule, and a left-aligned two-line heading, with the whole assembly centred as a unit. The
+line breaks are hard `<br>`s, so every heading silhouette is designed rather than reflowed. It
+repeats at every section.
 
-### Navigation
+Colour does the sectioning — dark ground, one uninterrupted purple slab across Voices and Series,
+back to dark. No dividers anywhere.
 
-`app/SiteNav.jsx` + `app/nav.css`. A masthead, not a menu: mark on the left, chapter list on the
-right. Three behaviours and no more —
+---
 
-1. invisible over the hero, settles onto a blurred hairline once you leave it
-2. the chapter you are reading is lit and underlined (`aria-current`)
-3. the hairline doubles as a reading-progress bar
+## The animated logo
 
-Under 860px the chapter list collapses into a numbered **index panel** — a contents page with its
-own mark and close control, Escape to dismiss, focus trapped and returned, body scroll locked.
-A skip-to-content link is the first tab stop on the page.
+`components/Logo.jsx` inlines the SVG rather than using `<img src>`, because the three groups
+(`#vc-v`, `#vc-sparkle`, `#vc-word`) have to be animated independently.
 
-### The animated logo
+**Intro**, once on mount, ~1.7s: the V rises and wipe-reveals upward from its vertex; the nine
+wordmark letters stagger up through the baseline 52ms apart; the sparkle lands last with a
+quarter-turn.
 
-`components/Logo.jsx` inlines `/public/logo.svg` rather than `<img src>`-ing it, so the three
-groups (`#vc-v`, `#vc-sparkle`, `#vc-word`) can animate independently: the V wipes up through a
-clip path, the sparkle lands, the wordmark letters stagger in. `<LogoMark>` is the same file
-cropped to V + sparkle for the masthead and footer.
+**Hover**: the star does a half-turn with a slight swell. Half, not quarter — the star is four-point
+symmetric, so 180° lands exactly where it started and the beat replays cleanly. The standalone mark
+(footer, masthead) also scales slightly. Fine pointers only, so a tap can't strand the star
+mid-spin.
 
-⚠️ Every path lives inside a group whose y-axis is flipped and scaled 10× — read the coordinate
-warning at the top of `Logo.jsx` before touching `Logo.css`.
+Two things worth knowing if you touch this file:
 
-## What is real and what is placeholder
+- **The letter paths are not in visual order.** potrace emitted them as C, C, V, I, B, E, H, E, K. A
+  naive `:nth-child` stagger pops them in scrambled order — each letter carries a `--i` custom
+  property with its measured left-to-right index instead.
+- **The coordinate space is flipped.** `.vcl__v`, `.vcl__sparkle` and `.vcl__letter` sit inside a
+  potrace group transformed by `scale(0.1, -0.1)`, so in their local space 1px = 0.1 viewBox units
+  and a *negative* translateY moves an element *down* on screen.
 
-Real, checkable against the public profile:
+Exports: `Logo` (full lockup) and `LogoMark` (V + sparkle only).
 
-- **27.1K followers, 131 posts** (`app/site.js`)
-- *We Connect, Curate and Create* / *Follow us to know where the good vibes are*
-- Series: **Diwali '25**, **Dawntown**
+---
 
-Placeholder — invented, flagged in comments at every definition in `app/page.jsx`, and **must not
-ship as fact**:
+## What is real and what is not
 
-- `CHIPS` — all three mosaic stat chips
-- `FIGURES` — the 2nd and 3rd figures (the 1st is the real follower count)
-- `VOICES` — all four: the stat, the quote and the attribution. The word "Placeholder" is left
-  visible in the role line on purpose, so a staging link cannot pass them off as testimonials
-- `FAQ` — answers 2–5 say "Placeholder answer" in the copy itself. Answers 1, 6 and 7 are real
-- "Series 03 · Breakdown" is a recurring caption format, not a confirmed series title
+**Read this before the site goes anywhere public.**
 
-Nothing invented is emitted into the structured data — see below.
+Real, verified from the account:
 
-## SEO / metadata
+- 27.1K followers, 131 posts, 88 following
+- The taglines: *"We Connect, Curate and Create"* / *"Follow us to know where the good vibes are"*
+- Series names: **Diwali '25**, **Dawntown**
+- The 12 posts, their posters and their dates
 
-`app/layout.jsx` carries `metadataBase`, a canonical URL, OG + Twitter cards, robots directives
-and a JSON-LD `@graph` with three cross-referenced nodes:
+Invented placeholders, all marked in source comments:
 
-- **Organization** — name, slogan, logo, `areaServed: India`, `sameAs` → the Instagram account,
-  and the real follower count as an `InteractionCounter`
-- **WebSite** — published by the Organization, `inLanguage: en-IN`
-- **ProfilePage** — this page, `mainEntity` → the Organization
+- `CHIPS` — all three mosaic figures (`4.2M`, `+38%`, `11.4%`)
+- `FIGURES` — the 2nd and 3rd (the 1st, 27.1K, is real)
+- `VOICES` — all four testimonials: stat, quote and attribution. The word "Placeholder" is left
+  visible in each role line on purpose
+- FAQ answers 2–5
+- `SITE_URL` in `app/site.js`
 
-There is deliberately **no FAQPage node**: most FAQ answers are placeholders, and emitting them as
-structured data would publish invented statements to search engines. Add it once the answers are
-written.
+The figures are deliberately odd and decimal rather than round, because specific numbers read as
+measurement and round ones read as marketing. That makes them *more* convincing, which is exactly
+why they must be replaced rather than shipped.
 
-`app/robots.js` and `app/sitemap.js` emit a static `robots.txt` and `sitemap.xml` at build.
+There is deliberately **no FAQPage JSON-LD**. Emitting placeholder answers as structured data would
+publish invented statements to search engines as fact. Add that node once the answers are real.
 
-### The domain is a placeholder
-
-There is no final domain yet. **`SITE_URL` in `app/site.js` is the only place a host is written.**
-Change that one line and `metadataBase`, the canonical, the absolute OG/Twitter image URLs,
-`robots.txt`, `sitemap.xml` and every `@id` in the JSON-LD follow automatically.
-
-```js
-export const SITE_URL = 'https://vibecheck.example'; // ← PLACEHOLDER
-```
-
-`public/apple-touch-icon.png` and `public/favicon.ico` are served from the root and picked up by
-convention; `app/icon.png` emits the `<link rel="icon">`.
+---
 
 ## Adding posts
 
@@ -131,81 +148,150 @@ convention; `app/icon.png` emits the `<link rel="icon">`.
   "type": "reel",
   "isVideo": true,
   "date": "July 31, 2026",
-  "poster": "/posters/DbdMZBehRLJ.jpg",
+  "poster": "/posters/DbdMZBehRLJ.webp",
   "preview": "/previews/DbdMZBehRLJ.mp4",
   "caption": ""
 }
 ```
 
-`shortcode` is the bit after `/reel/` or `/p/` in the post URL. Drop a matching 9:16 JPG into
-`public/posters/` (and optionally a short muted MP4 into `public/previews/`) and it appears — no
-code changes.
+`shortcode` is the segment after `/reel/` or `/p/` in the post URL. `preview` may be `null` — those
+tiles simply never mount a `<video>` and stay posters, no broken state.
 
-**Currently 12 of 131 posts.** Instagram only exposes 12 to a logged-out visitor, which is all a
-scraper can reach; the page says so under the wall rather than implying a full archive. To fill in
-the rest, export the full post list from the account (Meta's *Download Your Information* includes
-every permalink) and the wall scales as-is.
+**Only 12 of 131 posts are here.** Instagram exposes exactly 12 to a logged-out visitor, which is
+the ceiling for any scraper. To fill the rest, export the account's data (Meta's *Download Your
+Information* includes every permalink) and extend this file — the grid scales as-is.
 
-## Logo asset
+To make a poster and preview for a new post:
 
-`public/logo.svg` is a **placeholder trace** — a vector of the supplied PNG, split into three
-animatable groups. Replace that one file with the original mark and it drops straight in.
-`components/Logo.jsx` inlines a faithful copy of the same markup, so both need swapping together.
+```bash
+# poster: 9:16, WebP
+magick source.jpg -quality 72 -define webp:method=6 public/posters/<shortcode>.webp
+
+# preview: 2.5s, muted, 360px wide, bitrate-capped
+ffmpeg -ss 2 -t 2.5 -i source.mp4 -an \
+  -vf "scale=360:-2:flags=lanczos,fps=24" \
+  -c:v libx264 -preset veryslow -crf 34 -maxrate 250k -bufsize 500k \
+  -movflags +faststart public/previews/<shortcode>.mp4
+```
+
+The `-maxrate` cap matters. With crf alone, busy footage ran at ~450 kbps against ~230 kbps for
+everything else and produced clips twice the size.
+
+**Previews are frozen snapshots.** Re-edit a reel on Instagram and the embed updates but the hover
+preview will not — regenerate it.
+
+---
 
 ## Brand
 
-Real brand assets supplied by the client, in `public/brand/`. The brand colour is **purple
-`#7a257c`** — taken from the logo lockup background, not guessed.
+Assets supplied by the client, kept in `public/brand/`. The brand colour is measured from the logo
+lockup itself, not guessed.
 
-| | |
-|---|---|
-| Brand purple | `#7a257c` |
-| Ink | `#050505` |
-| Paper | `#f4f1ec` |
-| Tints | `#8c428e` `#924d94` `#b788b8` `#cdaece` `#e6d5e6` |
-| Display | Instrument Serif |
-| Body | Inter |
-| Mono | Space Mono |
+| Token | Value | Use |
+|---|---|---|
+| `--accent` | `#7a257c` | The brand purple. A **fill** that carries white |
+| `--accent-lit` | `#b788b8` | Accent **text** on dark |
+| `--accent-mid` | `#924d94` | Borders, non-text UI |
+| `--accent-pale` | `#d4b9d5` | Quiet emphasis |
+| `--accent-deep` | `#3d123e` | The slab; washes only |
+| `--ink` / `--ink-2` | `#050505` / `#100b12` | Ground, raised surface |
+| `--paper` / `--paper-dim` | `#f4f1ec` / `#c9c5bd` | Type |
+| `--muted` | `#a49bab` | Dimmed labels |
 
-The mark is a white serif **V** with a four-point sparkle, wordmark VIBECHECK below in a spaced
-serif. Source files: stacked and horizontal lockups in white and black, plus the purple square.
-Favicon, apple-touch-icon and `og.png` are generated from these.
+**Why the purple splits by role:** `#7a257c` on the near-black ground is only **2.31:1** — it fails
+even the large-text bar. So the brand purple stays a fill with white on top, exactly as the logo
+lockup uses it, and a measured tint from the same files carries type at 7.01:1. Every pairing is
+computed and tabled in `app/globals.css`.
 
-`app/globals.css` carries a computed WCAG table at the top. The short version: `#7a257c` is a
-**fill** colour that carries white; on the near-black ground it manages only 2.31:1, so text uses
-the lighter tints. Do not paint body copy in raw brand purple.
+Type: **Instrument Serif** (display), **Inter** (body), **Space Mono** (labels).
 
-## Content shape (observed)
+Instrument Serif ships weight 400 only — the display headings therefore set `font-weight: 400`
+explicitly. Without that they inherit the browser's bold default and render as *synthetic* bold, a
+smeared 400. That was live on ~80% of display type before it was caught.
 
-Street-interview reels, mic in hand, shot on location at night markets, festivals and venues.
-Recurring formats: *What's…*, *Breakdown*, quiz cards, crowd reactions. Every post carries the
-VIBECHECK watermark top-right.
+`public/logo.svg` is a real vector trace of the supplied PNG, split into the three animatable
+groups. `components/Logo.jsx` holds a faithful inline copy — **if you change one, change both.**
 
-## Structure
+---
+
+## Performance notes
+
+Decisions here were measured, not assumed. The ones worth preserving:
+
+- **The logo sparkle does not loop forever.** An infinite twinkle cost **2131ms of main-thread work
+  per 6 seconds** and pulled scrolling from 57fps to 51fps, because Chromium cannot composite
+  transform/opacity on an SVG child — every frame hit style, layout and paint. It now runs four
+  beats and is parked by an IntersectionObserver whenever the mark is off-screen.
+- **The hero is not gated behind a reveal.** It was, and LCP was 5.3s on Fast 3G against 0.68s
+  without. Reveals are for below-the-fold content only.
+- **The first mosaic posters are `eager` + `fetchpriority="high"`.** On phones one of them *is* the
+  LCP element; lazy-loading it cost ~1.0s.
+- **Posters are WebP** — 452 KB → 280 KB across twelve.
+- **Do not resize the posters down.** They are 360×640 and already render at a ~2× upscale on
+  retina. The win was format, not dimensions.
+- **The mosaic marquee is free** — 12ms per 6s, zero layouts, pure compositor. Measured, and left
+  alone.
+
+First load is ~110 KB of JS, of which ~5 KB is this site's own code; the rest is React and the App
+Router.
+
+---
+
+## Accessibility
+
+- **The page renders without JavaScript.** Reveals ship *visible* and JS opts in to hiding them,
+  with a watchdog that restores everything if the bundle never arrives. The naive version — hide in
+  CSS, reveal with JS — leaves a permanently blank page when JS fails.
+- Lightbox moves focus in, traps Tab (including the `focusin` case where Tab escapes the
+  cross-origin iframe), and restores focus to the tile you ended on.
+- The auto-scrolling mosaic has a Pause control, not just hover-pause — hover is unavailable to
+  keyboard and touch users (WCAG 2.2.2).
+- `prefers-reduced-motion` disables the intro, the twinkle, the hover beats, the marquee, reveals and
+  hover previews.
+- Tap targets are ≥44px on coarse pointers.
+- 0 axe violations (wcag2a/2aa/21aa/22aa) at 390px and 1440px.
+
+**Known limitation:** while focus is inside the Instagram embed, Escape and arrow keys are swallowed
+by the iframe. It is not a keyboard trap — Tab exits and focus returns — but the shortcuts don't
+reach us.
+
+---
+
+## Before this goes live
+
+1. **Set the domain.** `SITE_URL` in `app/site.js` is `https://vibecheck.example`. It feeds
+   `metadataBase`, canonical, OG/Twitter image URLs, `robots.txt`, `sitemap.xml` and every JSON-LD
+   `@id`. Until it's real, **social previews will not render.**
+2. **Replace every placeholder figure and quote.** See *What is real and what is not*.
+3. **Add the remaining posts** from the account export.
+4. Consider adding `FAQPage` JSON-LD once the answers are genuine.
+
+---
+
+## File map
 
 ```
 app/
-  layout.jsx     metadata, JSON-LD, fonts, skip link, nav mount
-  page.jsx       the nine sections
-  site.js        SITE_URL placeholder + verified brand facts
-  SiteNav.jsx    masthead + mobile index panel
-  nav.css        nav / skip-link / structural CSS
-  globals.css    design tokens + everything else
-  robots.js      → /robots.txt
-  sitemap.js     → /sitemap.xml
-components/      ReelWall, Mosaic, Logo, Accordion, Reveal, Marquee, useHoverPreview
-data/            posts.json — the only file you edit to add posts
-public/          logo.svg (swap me), posters/, previews/, brand/
+  page.jsx        every section, and the placeholder data at the top
+  layout.jsx      fonts, metadata, JSON-LD
+  site.js         SITE_URL — the one line to change on launch
+  SiteNav.jsx     masthead + mobile index panel
+  globals.css     tokens, sections, responsive pass
+  nav.css         masthead only
+  robots.js       emits robots.txt
+  sitemap.js      emits sitemap.xml
+components/
+  Logo.jsx/.css   inline animated SVG; exports Logo and LogoMark
+  ReelWall.jsx    the 12 tiles + the embed lightbox
+  Mosaic.jsx      auto-scrolling wall + pause control
+  Accordion.jsx   FAQ
+  Reveal.jsx      scroll reveals, no-JS safe
+  useHoverPreview.js   shared hover-to-play, with intent delay
+  a11y.css        component-owned accessibility layer
+data/posts.json   the only file you edit to add posts
+public/
+  posters/        12 WebP stills
+  previews/       9 hover clips
+  brand/          supplied lockups
+  logo.svg        vector source for the inline logo
 ```
-
-`components/Marquee.jsx` is currently unused — kept because the text marquee may come back.
-
-## Accessibility notes
-
-- One `h1`; no heading levels skipped; every `<section>` is labelled by its own heading
-- `<footer>` sits outside `<main>`, so it is a real `contentinfo` landmark
-- Skip link is the first tab stop and moves focus to `<main>`
-- Reveals use one `IntersectionObserver` per element, unobserved after firing — no scroll listeners
-- Lightbox: Escape closes, ← → step through, body scroll locks, tiles are real `<button>`s
-- `prefers-reduced-motion` disables reveals, the marquee, the mosaic and the nav transitions
-- Testimonial quotes are `<blockquote>` inside `<figure>` with a `<figcaption>` attribution
