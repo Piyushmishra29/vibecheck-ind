@@ -1,0 +1,183 @@
+/* ══════════════════════════════════════════════════════════════════════
+   NAVIGATION + STRUCTURE
+   Imported AFTER globals.css, so equal-specificity rules here win.
+   Owned by the structure/SEO pass; globals.css is owned elsewhere and is
+   deliberately not touched. Everything below is namespaced (.vnav, .vidx,
+   .skip, .wallnote) except two small corrections noted in place.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── skip link ─────────────────────────────────────────────────────── */
+.skip {
+  position: fixed; top: 0; left: 0; z-index: 300;
+  transform: translateY(-130%);
+  background: var(--accent); color: #fff;                /* 8.81:1 */
+  padding: 12px 22px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  transition: transform .25s var(--ease);
+}
+.skip:focus, .skip:focus-visible { transform: none; }
+
+/* anchors must clear the fixed bar */
+[id] { scroll-margin-top: 88px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+/* main is focus target for the skip link — never show a ring on it */
+main:focus { outline: none; }
+
+/* ── the masthead ──────────────────────────────────────────────────── */
+.vnav {
+  --vnav-p: 0;
+  position: fixed; inset: 0 0 auto; z-index: 90;
+  border-bottom: 1px solid transparent;
+  transition: background .45s var(--ease), border-color .45s var(--ease);
+}
+.vnav.is-lifted {
+  background: rgba(5, 5, 5, .78);
+  backdrop-filter: blur(14px) saturate(1.25);
+  -webkit-backdrop-filter: blur(14px) saturate(1.25);
+  border-bottom-color: var(--line);
+}
+/* the hairline doubles as reading progress */
+.vnav::after {
+  content: ""; position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%;
+  background: var(--accent-lit); transform-origin: 0 50%;
+  transform: scaleX(var(--vnav-p));
+  opacity: 0; transition: opacity .45s var(--ease);
+}
+.vnav.is-lifted::after { opacity: .85; }
+
+.vnav__in {
+  max-width: 1320px; margin-inline: auto; padding-inline: 20px;
+  height: 60px; display: flex; align-items: center; gap: clamp(1rem, 3vw, 2.5rem);
+}
+
+.vnav__home { display: flex; align-items: center; flex: none; color: var(--paper); transition: color .4s var(--ease); }
+.vnav__home:hover { color: var(--accent-lit); }
+
+.vnav__links { margin-left: auto; }
+.vnav__links ul { list-style: none; margin: 0; padding: 0; display: flex; gap: clamp(1rem, 2.2vw, 2rem); }
+.vnav__links a {
+  position: relative; display: block; padding: 6px 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--paper-dim);                               /* 11.85:1 */
+  transition: color .35s var(--ease);
+}
+.vnav__links a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+  background: currentColor; transform: scaleX(0); transform-origin: 0 50%;
+  transition: transform .4s var(--ease);
+}
+.vnav__links a:hover { color: var(--paper); }
+.vnav__links a:hover::after { transform: scaleX(1); }
+.vnav__links a[aria-current] { color: var(--accent-lit); }   /* 7.01:1 */
+.vnav__links a[aria-current]::after { transform: scaleX(1); }
+
+.vnav__ig {
+  flex: none; border: 1px solid var(--accent-mid); border-radius: 100px; padding: 8px 16px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--accent-lit); transition: .4s var(--ease);
+}
+.vnav__ig:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.vnav__toggle {
+  display: none; align-items: center; margin-left: auto;
+  background: none; border: 1px solid var(--line); border-radius: 100px;
+  color: var(--paper); padding: 8px 16px; cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  transition: border-color .35s var(--ease), color .35s var(--ease);
+}
+.vnav__toggle:hover { border-color: var(--line-accent); color: var(--accent-lit); }
+
+@media (max-width: 860px) {
+  .vnav__in { height: 54px; }
+  .vnav__links, .vnav__ig { display: none; }
+  .vnav__toggle { display: inline-flex; }
+  [id] { scroll-margin-top: 74px; }
+}
+
+/* ── index panel: a contents page, not a drawer ────────────────────── */
+.vidx {
+  position: fixed; inset: 0; z-index: 95; background: var(--ink);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 88px 24px 40px; overflow-y: auto;
+  animation: vidx-in .3s var(--ease);
+}
+.vidx[hidden] { display: none; }
+@keyframes vidx-in { from { opacity: 0 } to { opacity: 1 } }
+
+/* mirrors the masthead row it covers, so the mark does not jump */
+.vidx__bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding-inline: 20px; color: var(--paper);
+}
+.vidx__close {
+  background: none; border: 1px solid var(--line); border-radius: 100px;
+  color: var(--paper); padding: 8px 16px; cursor: pointer;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  transition: border-color .35s var(--ease), color .35s var(--ease);
+}
+.vidx__close:hover { border-color: var(--line-accent); color: var(--accent-lit); }
+
+.vidx__list { list-style: none; margin: 0; padding: 0; }
+.vidx__list li { border-top: 1px solid var(--line); }
+.vidx__list li:last-child { border-bottom: 1px solid var(--line); }
+.vidx__list a { display: flex; align-items: baseline; gap: 16px; padding: 15px 2px; }
+.vidx__n {
+  font-family: var(--font-mono), monospace; font-size: 11px; letter-spacing: .14em;
+  color: var(--accent-lit); flex: none;
+}
+.vidx__t {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(1.9rem, 9vw, 2.5rem); line-height: 1; letter-spacing: -.01em;
+}
+.vidx__ig {
+  align-self: flex-start; margin-top: 26px;
+  background: var(--accent); color: #fff; border-radius: 100px; padding: 13px 24px;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+}
+.vidx__tag {
+  margin: 22px 0 0; font-family: var(--font-mono), monospace;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vnav, .vnav::after, .vnav__links a, .vnav__links a::after,
+  .vnav__toggle, .vidx__close, .skip { transition: none; }
+  .vidx { animation: none; }
+}
+
+/* ── two corrections to page furniture ─────────────────────────────── */
+
+/* Footer column headings moved h4 → h2 (h4 skipped a level). globals.css
+   only sizes `.fgrid h4`, so the margin is restored here. */
+.fgrid h2 { margin: 0 0 14px; }
+
+/* honest footnote under the archive grid */
+.wallnote {
+  margin: 30px 0 0; text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted);                                    /* 5.53:1 */
+}
+.wallnote a { color: var(--accent-lit); border-bottom: 1px solid var(--line-accent); padding-bottom: 2px; }
+.wallnote a:hover { color: var(--paper); border-bottom-color: var(--paper); }
+
+/* ── tap targets (integration fix) ─────────────────────────────────────
+   The responsive pass measured these below the 44px minimum on touch:
+   .skip 43px, .vnav__home 26x26, .vnav__toggle 76x34, .wallnote a 77x20.
+   Raised on coarse pointers and narrow widths only — desktop sizing and
+   the masthead's visual rhythm are unchanged. */
+@media (max-width: 640px), (pointer: coarse) {
+  .skip { min-height: 44px; display: inline-flex; align-items: center; }
+  .vnav__home { min-width: 44px; min-height: 44px; justify-content: center; }
+  .vnav__toggle,
+  .vidx__close { min-height: 44px; }
+  .wallnote a { display: inline-block; padding-block: 12px; }
+}

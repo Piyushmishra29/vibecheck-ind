@@ -96,13 +96,25 @@
   /* Two animations on one element: the twinkle is listed second, so once its
      delay elapses it takes over transform/opacity from the pop's fill state.
      Both meet at rotate(0) scale(1) opacity(1), so the handover is seamless. */
+  /* No will-change here: it cannot promote an SVG child to its own layer, so
+     it bought nothing (measured) while implying otherwise. */
   .vcl--play .vcl__sparkle {
     transform-box: fill-box;
     transform-origin: 50% 50%;
-    will-change: transform, opacity;
     animation:
       vcl-spark-in 640ms var(--vcl-ease) var(--vcl-spark-delay) both,
-      vcl-twinkle 4200ms ease-in-out var(--vcl-twinkle-delay) infinite;
+      vcl-twinkle 4200ms ease-in-out var(--vcl-twinkle-delay) 4 both;
+  }
+  /* Four beats, not `infinite`. Measured: an endless twinkle cost 2131ms of
+     main-thread work per 6s and pulled scrolling from 57fps to 51fps, because
+     Chromium cannot composite transform/opacity on an SVG child. Four beats
+     keep the mark feeling alive on arrival, then it rests and the page is
+     free. Paired with the in-view gate below, the cost is bounded and never
+     paid off-screen. */
+
+  /* Parked while the mark is out of view — see the note in Logo.jsx. */
+  .vcl--rest .vcl__sparkle {
+    animation-play-state: paused;
   }
 
   @keyframes vcl-spark-in {
